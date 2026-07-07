@@ -19,7 +19,6 @@ async function bootstrap() {
   });
 
   // Global validation pipe
-  app.setGlobalPrefix('api', { exclude: [''] });
 
   app.useGlobalPipes(
     new ValidationPipe({
