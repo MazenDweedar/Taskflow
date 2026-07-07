@@ -1,98 +1,200 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# TaskFlow API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A minimal, well-structured project & task management REST API built with NestJS, TypeORM, and PostgreSQL.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Stack
 
-## Description
+- **NestJS 11** (TypeScript, strict mode)
+- **TypeORM** with **PostgreSQL**
+- **Passport** + **JWT** (cookie-based auth)
+- **bcrypt** for password hashing
+- **class-validator** / **class-transformer** for DTO validation
+- **Swagger** for API documentation
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Quick Start
 
-## Project setup
+### Prerequisites
+
+- Node.js 20+
+- PostgreSQL 14+
+
+### Setup
 
 ```bash
-$ npm install
+# Navigate to the API directory
+cd apps/api
+
+# Install dependencies
+npm install
+
+# Copy environment config
+cp .env.example .env
+# Edit .env with your database credentials
+
+# Create the database
+psql -U postgres -c "CREATE DATABASE taskflow;"
+
+# Run migrations
+npm run migration:run
+
+# Seed demo data
+npm run seed
+
+# Start development server
+npm run start:dev
 ```
 
-## Compile and run the project
+The API will be running at `http://localhost:3001`.
 
-```bash
-# development
-$ npm run start
+Swagger docs are available at `http://localhost:3001/api/docs`.
 
-# watch mode
-$ npm run start:dev
+### Demo Credentials
 
-# production mode
-$ npm run start:prod
+After running the seed script, you can log in with:
+
+- **Email:** `demo@taskflow.dev`
+- **Password:** `demo1234`
+
+## Project Structure
+
+```
+apps/api/src/
+├── auth/                  # Authentication module
+│   ├── dto/               # Register, Login DTOs
+│   ├── auth.controller.ts # Auth endpoints
+│   ├── auth.service.ts    # Auth business logic
+│   ├── auth.module.ts     # Module wiring
+│   └── jwt.strategy.ts    # Passport JWT strategy (cookie extractor)
+├── users/                 # Users module
+│   └── entities/          # User entity
+├── projects/              # Projects module
+│   ├── dto/               # Create, Update DTOs
+│   ├── entities/          # Project entity
+│   ├── projects.controller.ts
+│   ├── projects.service.ts
+│   └── projects.module.ts
+├── tasks/                 # Tasks module
+│   ├── dto/               # Create, Update, Filter DTOs
+│   ├── entities/          # Task entity (with enums)
+│   ├── tasks.controller.ts
+│   ├── tasks.service.ts
+│   └── tasks.module.ts
+├── common/                # Shared utilities
+│   ├── guards/            # JwtAuthGuard
+│   └── decorators/        # CurrentUser decorator
+├── migrations/            # TypeORM migrations
+├── data-source.ts         # TypeORM CLI data source config
+├── seed.ts                # Database seeder
+├── app.module.ts          # Root module
+└── main.ts                # Bootstrap with CORS, cookies, Swagger, validation
 ```
 
-## Run tests
+## API Endpoints
 
-```bash
-# unit tests
-$ npm run test
+### Auth (no cookie required for register/login)
 
-# e2e tests
-$ npm run test:e2e
+| Method | Path             | Description                      |
+|--------|------------------|----------------------------------|
+| POST   | `/auth/register` | Register a new user              |
+| POST   | `/auth/login`    | Login, receive JWT in cookie     |
+| POST   | `/auth/logout`   | Clear JWT cookie (204)           |
+| GET    | `/auth/me`       | Get current user session         |
 
-# test coverage
-$ npm run test:cov
-```
+### Projects (JWT cookie required)
 
-## Deployment
+| Method | Path             | Description                      |
+|--------|------------------|----------------------------------|
+| GET    | `/projects`      | List user's projects             |
+| POST   | `/projects`      | Create a project                 |
+| GET    | `/projects/:id`  | Get a project                    |
+| PATCH  | `/projects/:id`  | Update a project                 |
+| DELETE | `/projects/:id`  | Delete a project (204)           |
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### Tasks (JWT cookie required)
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+| Method | Path                           | Description                                  |
+|--------|--------------------------------|----------------------------------------------|
+| GET    | `/projects/:projectId/tasks`   | List tasks (filterable: `?status=&priority=&search=`) |
+| POST   | `/projects/:projectId/tasks`   | Create a task in a project                   |
+| GET    | `/tasks/:id`                   | Get a task                                   |
+| PATCH  | `/tasks/:id`                   | Update a task (any subset of fields)         |
+| DELETE | `/tasks/:id`                   | Delete a task (204)                          |
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+**Task filters** are combinable: `?status=TODO&priority=HIGH&search=login`
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Design Decisions
 
-## Resources
+### Cascading Deletes
 
-Check out a few resources that may come in handy when working with NestJS:
+Both foreign keys use `ON DELETE CASCADE`:
+- Deleting a user removes all their projects
+- Deleting a project removes all its tasks
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+This is intentional — a project's tasks and a user's projects have no meaning without their parent. Cascade avoids orphaned rows without manual cleanup logic.
 
-## Support
+### Native PostgreSQL Enums
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+`status` (TODO, IN_PROGRESS, DONE) and `priority` (LOW, MEDIUM, HIGH) use **native Postgres enum types**, not varchar with application-only validation. This enforces data integrity at the database level.
 
-## Stay in touch
+### 404 for Ownership Mismatches
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+When a user requests a resource they don't own, the API returns **404 Not Found** (not 403 Forbidden). This avoids leaking the existence of other users' data.
 
-## License
+### Cookie-Based JWT Auth
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+The JWT is stored in an **httpOnly cookie** (not the Authorization header). This provides:
+- CSRF mitigation via `sameSite: 'lax'`
+- XSS protection via `httpOnly: true`
+- Automatic inclusion in requests without client-side token management
+
+The `JwtStrategy` uses a custom `cookieExtractor` function instead of the default header extractor.
+
+### Mixed Nested/Flat Task Routes
+
+- **List/Create** tasks are nested under `/projects/:projectId/tasks` — ownership check happens naturally via the project
+- **Read/Update/Delete** a single task uses `/tasks/:id` — ownership is verified via a `task → project → owner_id` join
+
+This mirrors how GitHub/Linear-style APIs are structured and avoids the frontend needing to track "current project ID" for single-task operations.
+
+### Database Indexes
+
+Strategic indexes back the app's actual query patterns:
+- `users.email` (unique) — login lookup
+- `projects.owner_id` — listing a user's projects
+- `tasks.project_id` — listing tasks per project
+- `tasks.status` — filtering tasks by status
+
+### No `synchronize: true`
+
+TypeORM's `synchronize: true` is explicitly disabled. All schema changes go through committed migrations to ensure reproducibility and safety across environments.
+
+## Scripts
+
+| Script                | Description                        |
+|-----------------------|------------------------------------|
+| `npm run start:dev`   | Start in watch mode                |
+| `npm run build`       | Build for production               |
+| `npm run start:prod`  | Run production build               |
+| `npm run migration:generate -- src/migrations/NAME` | Generate migration |
+| `npm run migration:run`    | Run pending migrations         |
+| `npm run migration:revert` | Revert last migration          |
+| `npm run seed`        | Seed demo data                     |
+| `npm run lint`        | Lint with ESLint                   |
+| `npm run test`        | Run unit tests                     |
+
+## Environment Variables
+
+See `.env.example` for all required variables:
+
+| Variable       | Description                     | Default          |
+|----------------|---------------------------------|------------------|
+| `DB_HOST`      | PostgreSQL host                 | `localhost`      |
+| `DB_PORT`      | PostgreSQL port                 | `5432`           |
+| `DB_USERNAME`  | PostgreSQL user                 | `postgres`       |
+| `DB_PASSWORD`  | PostgreSQL password             | —                |
+| `DB_NAME`      | Database name                   | `taskflow`       |
+| `JWT_SECRET`   | Secret for signing JWTs         | —                |
+| `JWT_EXPIRY`   | JWT expiration duration         | `7d`             |
+| `COOKIE_SECRET`| Secret for cookie signing       | —                |
+| `PORT`         | API server port                 | `3001`           |
+| `FRONTEND_URL` | Frontend origin for CORS        | `http://localhost:3000` |
