@@ -443,21 +443,44 @@ export default function ProjectDetailPage() {
                 </div>
                 {taskError && <p className="text-sm text-red-500">{taskError}</p>}
               </div>
-              <div className="px-6 py-4 border-t border-border flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsTaskModalOpen(false)}
-                  className="inline-flex justify-center rounded-lg border border-border px-4 py-2 bg-transparent text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover focus:outline-none transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={taskLoading}
-                  className="inline-flex justify-center rounded-lg border border-transparent px-4 py-2 bg-accent text-sm font-medium text-bg hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface focus:ring-accent disabled:opacity-50 transition-colors"
-                >
-                  {taskLoading ? 'Saving...' : (editingTask ? 'Save Changes' : 'Add Task')}
-                </button>
+              <div className="px-6 py-4 border-t border-border flex justify-between items-center">
+                <div>
+                  {editingTask && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (window.confirm('Delete this task?')) {
+                          try {
+                            await api.tasks.delete(editingTask);
+                            setIsTaskModalOpen(false);
+                            loadProjectAndTasks();
+                          } catch (err: any) {
+                            alert('Failed to delete task');
+                          }
+                        }
+                      }}
+                      className="text-sm font-medium text-[#EF4444] hover:text-[#EF4444]/80 transition-colors"
+                    >
+                      Delete Task
+                    </button>
+                  )}
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsTaskModalOpen(false)}
+                    className="inline-flex justify-center rounded-lg border border-border px-4 py-2 bg-transparent text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover focus:outline-none transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={taskLoading}
+                    className="inline-flex justify-center rounded-lg border border-transparent px-4 py-2 bg-accent text-sm font-medium text-bg hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface focus:ring-accent disabled:opacity-50 transition-colors"
+                  >
+                    {taskLoading ? 'Saving...' : (editingTask ? 'Save Changes' : 'Add Task')}
+                  </button>
+                </div>
               </div>
             </form>
           </div>
