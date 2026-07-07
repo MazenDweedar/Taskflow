@@ -284,27 +284,57 @@ export default function ProjectDetailPage() {
       {/* Project Edit Modal */}
       {isProjectModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-black/50 transition-opacity" onClick={() => setIsProjectModalOpen(false)}></div>
-          <div className="relative bg-white rounded-lg text-left overflow-hidden shadow-xl sm:max-w-lg sm:w-full w-full">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={() => setIsProjectModalOpen(false)}></div>
+          <div className="relative bg-surface rounded-xl border border-border text-left overflow-hidden shadow-2xl sm:max-w-md sm:w-full w-full">
             <form onSubmit={handleProjectEditSubmit}>
-                <div className="bg-surface px-4 pt-5 pb-4 sm:p-6 sm:pb-4 rounded-t-lg">
-                  <h3 className="text-lg font-serif text-text-primary mb-4">Edit Project</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-text-primary">Name</label>
-                      <input required type="text" value={projectForm.name} onChange={(e) => setProjectForm({...projectForm, name: e.target.value})} className="mt-1 block w-full border-border text-text-primary placeholder-text-secondary rounded-md shadow-sm focus:ring-accent/50 focus:border-accent sm:text-sm py-2 px-3 border" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-text-primary">Description</label>
-                      <textarea rows={3} value={projectForm.description} onChange={(e) => setProjectForm({...projectForm, description: e.target.value})} className="mt-1 block w-full border-border text-text-primary placeholder-text-secondary rounded-md shadow-sm focus:ring-accent/50 focus:border-accent sm:text-sm py-2 px-3 border" />
-                    </div>
-                  </div>
+              <div className="px-6 py-5 border-b border-border flex justify-between items-center">
+                <h3 className="text-lg font-bold text-text-primary">
+                  Edit Project
+                </h3>
+                <button type="button" onClick={() => setIsProjectModalOpen(false)} className="text-text-secondary hover:text-text-primary transition-colors text-xl leading-none">&times;</button>
+              </div>
+              <div className="px-6 py-5 space-y-5">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-text-secondary mb-1">Project Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    required
+                    value={projectForm.name}
+                    onChange={(e) => setProjectForm({ ...projectForm, name: e.target.value })}
+                    className="block w-full sm:text-sm bg-bg border border-border text-text-primary placeholder-text-secondary rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors"
+                  />
                 </div>
-                <div className="bg-bg px-4 py-3 sm:px-6 flex flex-row-reverse border-t border-border rounded-b-lg">
-                  <button type="submit" disabled={taskLoading} className="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-accent text-white hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent/50 sm:ml-3 sm:w-auto text-sm transition-colors">Save</button>
-                  <button type="button" onClick={() => setIsProjectModalOpen(false)} className="mt-3 w-full inline-flex justify-center rounded-lg border border-border shadow-sm px-4 py-2 bg-surface text-text-primary hover:bg-bg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-border sm:mt-0 sm:ml-3 sm:w-auto text-sm transition-colors">Cancel</button>
+                <div>
+                  <label htmlFor="description" className="block text-sm font-medium text-text-secondary mb-1">Description</label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    rows={3}
+                    value={projectForm.description}
+                    onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
+                    className="block w-full sm:text-sm bg-bg border border-border text-text-primary placeholder-text-secondary rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors"
+                  />
                 </div>
-              </form>
+              </div>
+              <div className="px-6 py-4 border-t border-border flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsProjectModalOpen(false)}
+                  className="inline-flex justify-center rounded-lg border border-border px-4 py-2 bg-transparent text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover focus:outline-none transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={taskLoading}
+                  className="inline-flex justify-center rounded-lg border border-transparent px-4 py-2 bg-accent text-sm font-medium text-bg hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface focus:ring-accent disabled:opacity-50 transition-colors"
+                >
+                  {taskLoading ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -312,50 +342,89 @@ export default function ProjectDetailPage() {
       {/* Task Modal */}
       {isTaskModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-black/50 transition-opacity" onClick={() => setIsTaskModalOpen(false)}></div>
-          <div className="relative bg-white rounded-lg text-left overflow-hidden shadow-xl sm:max-w-lg sm:w-full w-full">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={() => setIsTaskModalOpen(false)}></div>
+          <div className="relative bg-surface rounded-xl border border-border text-left overflow-hidden shadow-2xl sm:max-w-md sm:w-full w-full">
             <form onSubmit={handleTaskSubmit}>
-                <div className="bg-surface px-4 pt-5 pb-4 sm:p-6 sm:pb-4 rounded-t-lg">
-                  <h3 className="text-lg font-serif text-text-primary mb-4">{editingTask ? 'Edit Task' : 'New Task'}</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-text-primary">Title</label>
-                      <input required type="text" value={taskForm.title} onChange={(e) => setTaskForm({...taskForm, title: e.target.value})} className="mt-1 block w-full border-border text-text-primary placeholder-text-secondary rounded-md shadow-sm focus:ring-accent/50 focus:border-accent sm:text-sm py-2 px-3 border" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-text-primary">Description</label>
-                      <textarea rows={2} value={taskForm.description} onChange={(e) => setTaskForm({...taskForm, description: e.target.value})} className="mt-1 block w-full border-border text-text-primary placeholder-text-secondary rounded-md shadow-sm focus:ring-accent/50 focus:border-accent sm:text-sm py-2 px-3 border" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-text-primary">Status</label>
-                        <select value={taskForm.status} onChange={(e) => setTaskForm({...taskForm, status: e.target.value})} className="mt-1 block w-full border-border text-text-primary bg-surface rounded-md shadow-sm focus:ring-accent/50 focus:border-accent sm:text-sm py-2 px-3 border">
-                          <option value="TODO">To Do</option>
-                          <option value="IN_PROGRESS">In Progress</option>
-                          <option value="DONE">Done</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-text-primary">Priority</label>
-                        <select value={taskForm.priority} onChange={(e) => setTaskForm({...taskForm, priority: e.target.value})} className="mt-1 block w-full border-border text-text-primary bg-surface rounded-md shadow-sm focus:ring-accent/50 focus:border-accent sm:text-sm py-2 px-3 border">
-                          <option value="LOW">Low</option>
-                          <option value="MEDIUM">Medium</option>
-                          <option value="HIGH">High</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-text-primary">Due Date (Optional)</label>
-                      <input type="date" value={taskForm.dueDate} onChange={(e) => setTaskForm({...taskForm, dueDate: e.target.value})} className="mt-1 block w-full border-border text-text-primary placeholder-text-secondary rounded-md shadow-sm focus:ring-accent/50 focus:border-accent sm:text-sm py-2 px-3 border" />
-                    </div>
-                    {taskError && <p className="text-sm text-[#B5654A]">{taskError}</p>}
+              <div className="px-6 py-5 border-b border-border flex justify-between items-center">
+                <h3 className="text-lg font-bold text-text-primary">
+                  {editingTask ? 'Edit Task' : 'New Task'}
+                </h3>
+                <button type="button" onClick={() => setIsTaskModalOpen(false)} className="text-text-secondary hover:text-text-primary transition-colors text-xl leading-none">&times;</button>
+              </div>
+              <div className="px-6 py-5 space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1">Title</label>
+                  <input
+                    required
+                    type="text"
+                    value={taskForm.title}
+                    onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
+                    className="block w-full sm:text-sm bg-bg border border-border text-text-primary placeholder-text-secondary rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1">Description (optional)</label>
+                  <textarea
+                    rows={2}
+                    value={taskForm.description}
+                    onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
+                    className="block w-full sm:text-sm bg-bg border border-border text-text-primary placeholder-text-secondary rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-1">Status</label>
+                    <select
+                      value={taskForm.status}
+                      onChange={(e) => setTaskForm({ ...taskForm, status: e.target.value })}
+                      className="block w-full sm:text-sm bg-bg border border-border text-text-primary rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors"
+                    >
+                      <option value="TODO">To Do</option>
+                      <option value="IN_PROGRESS">In Progress</option>
+                      <option value="DONE">Done</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-1">Priority</label>
+                    <select
+                      value={taskForm.priority}
+                      onChange={(e) => setTaskForm({ ...taskForm, priority: e.target.value })}
+                      className="block w-full sm:text-sm bg-bg border border-border text-text-primary rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors"
+                    >
+                      <option value="LOW">Low</option>
+                      <option value="MEDIUM">Medium</option>
+                      <option value="HIGH">High</option>
+                    </select>
                   </div>
                 </div>
-                <div className="bg-bg px-4 py-3 sm:px-6 flex flex-row-reverse border-t border-border rounded-b-lg">
-                  <button type="submit" disabled={taskLoading} className="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-accent text-white hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent/50 sm:ml-3 sm:w-auto text-sm transition-colors">Save</button>
-                  <button type="button" onClick={() => setIsTaskModalOpen(false)} className="mt-3 w-full inline-flex justify-center rounded-lg border border-border shadow-sm px-4 py-2 bg-surface text-text-primary hover:bg-bg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-border sm:mt-0 sm:ml-3 sm:w-auto text-sm transition-colors">Cancel</button>
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1">Due Date (optional)</label>
+                  <input
+                    type="date"
+                    value={taskForm.dueDate}
+                    onChange={(e) => setTaskForm({ ...taskForm, dueDate: e.target.value })}
+                    className="block w-full sm:text-sm bg-bg border border-border text-text-primary placeholder-text-secondary rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors"
+                  />
                 </div>
-              </form>
+                {taskError && <p className="text-sm text-red-500">{taskError}</p>}
+              </div>
+              <div className="px-6 py-4 border-t border-border flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsTaskModalOpen(false)}
+                  className="inline-flex justify-center rounded-lg border border-border px-4 py-2 bg-transparent text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover focus:outline-none transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={taskLoading}
+                  className="inline-flex justify-center rounded-lg border border-transparent px-4 py-2 bg-accent text-sm font-medium text-bg hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface focus:ring-accent disabled:opacity-50 transition-colors"
+                >
+                  {taskLoading ? 'Saving...' : (editingTask ? 'Save Changes' : 'Add Task')}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
