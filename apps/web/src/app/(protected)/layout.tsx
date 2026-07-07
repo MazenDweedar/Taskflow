@@ -1,9 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { api, ApiException } from '@/lib/api';
+
+type Project = {
+  id: string;
+  name: string;
+};
 
 export default function ProtectedLayout({
   children,
@@ -11,16 +16,24 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{ email: string } | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
     let mounted = true;
     
     api.auth.me()
-      .then((data: any) => {
+      .then(async (data: any) => {
         if (mounted) {
           setUser(data);
+          try {
+            const projs = await api.projects.list();
+            if (mounted) setProjects(projs);
+          } catch (e) {
+            console.error('Failed to load projects', e);
+          }
           setLoading(false);
         }
       })
@@ -59,34 +72,74 @@ export default function ProtectedLayout({
   }
 
   return (
-    <div className="min-h-screen">
-      <nav className="bg-surface border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <Link href="/projects" className="text-xl font-serif font-bold text-text-primary hover:text-accent transition-colors">
-                  TaskFlow
-                </Link>
-              </div>
+    <div className="min-h-screen flex">
+      {/* Sidebar */}
+      <aside className="w-64 bg-surface border-r border-border flex flex-col hidden md:flex h-screen sticky top-0">
+        {/* Header / Logo */}
+        <div className="p-6">
+          <Link href="/projects" className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-accent text-bg flex items-center justify-center font-bold">
+              ✓
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-text-secondary">
-                {user?.email}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="text-sm font-medium text-text-secondary hover:text-text-primary px-3 py-2 rounded-lg hover:bg-bg transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
-              >
-                Logout
-              </button>
+            <div>
+              <h1 className="font-bold text-lg text-text-primary tracking-wide">TaskFlow</h1>
+              <p className="text-xs text-text-secondary truncate w-40">{user?.email}</p>
             </div>
-          </div>
+          </Link>
         </div>
-      </nav>
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {children}
+        {/* Projects List */}
+        <div className="flex-1 overflow-y-auto px-4">
+          <h2 className="text-xs font-bold text-text-secondary tracking-widest uppercase mb-4 px-2">Projects</h2>
+          <ul className="space-y-1">
+            {projects.map(p => {
+              const isActive = pathname === `/projects/${p.id}`;
+              return (
+                <li key={p.id}>
+                  <Link 
+                    href={`/projects/${p.id}`}
+                    className={`block px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
+                      isActive 
+                        ? 'bg-accent-dim text-accent' 
+                        : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                    }`}
+                  >
+                    {p.name}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="p-4 border-t border-border space-y-2">
+          <Link 
+            href="/projects" 
+            className="flex items-center gap-2 px-3 py-2 w-full text-left text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-colors"
+          >
+            <span className="text-lg leading-none">+</span> Add Project
+          </Link>
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-3 py-2 w-full text-left text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-colors"
+          >
+            <span className="text-lg leading-none">⎋</span> Log out
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col min-h-screen relative">
+        {/* Mobile Header */}
+        <div className="md:hidden bg-surface border-b border-border p-4 flex justify-between items-center">
+          <Link href="/projects" className="font-bold text-text-primary">TaskFlow</Link>
+          <button onClick={handleLogout} className="text-text-secondary text-sm">Log out</button>
+        </div>
+        
+        <div className="flex-1 p-6 md:p-10 max-w-[1400px] w-full mx-auto">
+          {children}
+        </div>
       </main>
     </div>
   );
