@@ -85,6 +85,17 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleProjectDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this project? All tasks will be lost.')) return;
+    try {
+      await api.projects.delete(projectId);
+      // Project is gone, go back to empty state
+      window.location.href = '/projects';
+    } catch (err: any) {
+      alert(err instanceof ApiException ? err.messages.join(', ') : 'Failed to delete project');
+    }
+  };
+
   const openTaskModal = (task?: Task) => {
     setTaskError(null);
     if (task) {
@@ -162,39 +173,41 @@ export default function ProjectDetailPage() {
   }
 
   return (
-    <div>
-      <div className="mb-4">
-        <Link href="/projects" className="text-sm text-indigo-600 hover:text-indigo-900">
-          &larr; Back to projects
-        </Link>
-      </div>
-
-      <div className="bg-surface shadow-sm rounded-xl border border-border p-6 mb-8">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-serif text-text-primary">{project?.name}</h1>
-            <p className="mt-2 text-text-secondary">{project?.description || 'No description provided.'}</p>
+      {/* Header */}
+      <div className="mb-10 mt-2">
+        <div className="flex justify-between items-start gap-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 group">
+              <h1 className="text-3xl font-bold text-text-primary tracking-tight">{project?.name}</h1>
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 mt-1">
+                <button
+                  onClick={() => {
+                    setProjectForm({ name: project?.name || '', description: project?.description || '' });
+                    setIsProjectModalOpen(true);
+                  }}
+                  className="p-1.5 text-text-secondary hover:text-text-primary rounded hover:bg-surface-hover transition-colors"
+                  title="Edit Project"
+                >
+                  <span className="text-sm">✎</span>
+                </button>
+                <button
+                  onClick={handleProjectDelete}
+                  className="p-1.5 text-text-secondary hover:text-[#EF4444] rounded hover:bg-[#EF4444]/10 transition-colors"
+                  title="Delete Project"
+                >
+                  <span className="text-sm">🗑</span>
+                </button>
+              </div>
+            </div>
+            <p className="mt-3 text-base text-text-secondary max-w-3xl leading-relaxed">{project?.description || 'No description provided.'}</p>
           </div>
           <button
-            onClick={() => {
-              setProjectForm({ name: project?.name || '', description: project?.description || '' });
-              setIsProjectModalOpen(true);
-            }}
-            className="text-sm font-medium text-text-secondary border border-border rounded-lg px-4 py-2 hover:bg-surface hover:text-text-primary transition-colors"
+            onClick={() => openTaskModal()}
+            className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-bg bg-accent hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface focus:ring-accent transition-colors mt-1"
           >
-            Edit Project
+            <span className="text-lg leading-none">+</span> Add Task
           </button>
         </div>
-      </div>
-
-      <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <h2 className="text-xl font-serif text-text-primary">Tasks</h2>
-        <button
-          onClick={() => openTaskModal()}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-accent hover:bg-accent/90 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent/50"
-        >
-          Add Task
-        </button>
       </div>
 
       {/* Filters */}
