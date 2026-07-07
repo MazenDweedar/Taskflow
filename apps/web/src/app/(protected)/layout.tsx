@@ -95,17 +95,37 @@ export default function ProtectedLayout({
             {projects.map(p => {
               const isActive = pathname === `/projects/${p.id}`;
               return (
-                <li key={p.id}>
+                <li key={p.id} className="group relative">
                   <Link 
                     href={`/projects/${p.id}`}
-                    className={`block px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
+                    className={`block px-3 py-2 rounded-xl text-sm font-medium transition-colors pr-8 ${
                       isActive 
                         ? 'bg-accent-dim text-accent' 
                         : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
                     }`}
                   >
-                    {p.name}
+                    <span className="truncate block">{p.name}</span>
                   </Link>
+                  <button
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      if (window.confirm(`Delete project "${p.name}"? All tasks will be lost.`)) {
+                        try {
+                          await api.projects.delete(p.id);
+                          setProjects(prev => prev.filter(proj => proj.id !== p.id));
+                          if (isActive) {
+                            router.push('/projects');
+                          }
+                        } catch(err) {
+                          alert('Failed to delete project');
+                        }
+                      }
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-text-secondary hover:text-[#EF4444] transition-all p-1.5 rounded-lg hover:bg-[#EF4444]/10"
+                    title="Delete Project"
+                  >
+                    <span className="text-sm leading-none">🗑</span>
+                  </button>
                 </li>
               );
             })}
