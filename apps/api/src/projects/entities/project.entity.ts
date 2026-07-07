@@ -9,8 +9,8 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity.js';
-import { Task } from '../../tasks/entities/task.entity.js';
+import type { User } from '../../users/entities/user.entity.js';
+import type { Task } from '../../tasks/entities/task.entity.js';
 
 @Entity('projects')
 export class Project {
@@ -27,11 +27,11 @@ export class Project {
   @Column({ type: 'uuid', name: 'owner_id' })
   ownerId!: string;
 
-  @ManyToOne(() => User, (user) => user.projects, { onDelete: 'CASCADE' })
+  @ManyToOne('User', 'projects', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'owner_id' })
   owner!: User;
 
-  @OneToMany(() => Task, (task) => task.project)
+  @OneToMany('Task', 'project')
   tasks!: Task[];
 
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })

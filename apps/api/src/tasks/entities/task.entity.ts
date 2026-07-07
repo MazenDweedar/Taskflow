@@ -8,7 +8,7 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { Project } from '../../projects/entities/project.entity.js';
+import type { Project } from '../../projects/entities/project.entity.js';
 
 /** Native Postgres enum for task status */
 export enum TaskStatus {
@@ -33,7 +33,7 @@ export class Task {
   @Column({ type: 'uuid', name: 'project_id' })
   projectId!: string;
 
-  @ManyToOne(() => Project, (project) => project.tasks, { onDelete: 'CASCADE' })
+  @ManyToOne('Project', 'tasks', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'project_id' })
   project!: Project;
 

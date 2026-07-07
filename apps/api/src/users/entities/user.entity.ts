@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { Project } from '../../projects/entities/project.entity.js';
+import type { Project } from '../../projects/entities/project.entity.js';
 
 @Entity('users')
 export class User {
@@ -21,6 +21,6 @@ export class User {
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
   createdAt!: Date;
 
-  @OneToMany(() => Project, (project) => project.owner)
+  @OneToMany('Project', 'owner')
   projects!: Project[];
 }
