@@ -11,6 +11,10 @@ A minimal, well-structured project & task management REST API built with NestJS,
 - **class-validator** / **class-transformer** for DTO validation
 - **Swagger** for API documentation
 
+## Features
+- **Project & Task Management**: Full CRUD capabilities for projects and tasks.
+- **Kanban Board Drag-and-Drop**: Built-in support for modifying task status via a fluid drag-and-drop kanban interface (Bonus Task Completed).
+
 ## Quick Start
 
 ### Prerequisites
