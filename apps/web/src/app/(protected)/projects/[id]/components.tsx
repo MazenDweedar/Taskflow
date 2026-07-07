@@ -68,8 +68,8 @@ export function KanbanColumn({ id, title, count, dotColor, tasks, onTaskClick, o
   });
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2 mb-2">
+    <div className="flex flex-col bg-white/[0.02] border border-white/5 shadow-sm rounded-2xl p-4 h-full">
+      <div className="flex items-center gap-2 mb-4">
         <div className={`w-2 h-2 rounded-full ${dotColor}`}></div>
         <h3 className="font-bold text-text-primary text-sm uppercase tracking-wider">{title}</h3>
         <span className="ml-auto text-xs text-text-secondary font-medium bg-surface px-2 py-0.5 rounded-full border border-border">
@@ -78,7 +78,7 @@ export function KanbanColumn({ id, title, count, dotColor, tasks, onTaskClick, o
       </div>
       <div 
         ref={setNodeRef}
-        className={`flex flex-col gap-4 min-h-[150px] rounded-xl p-2 -m-2 transition-colors ${isOver ? 'bg-surface-hover' : ''}`}
+        className={`flex flex-col gap-3 min-h-[200px] rounded-xl transition-colors ${isOver ? 'bg-white/5' : ''}`}
       >
         <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
           {tasks.map(task => (
