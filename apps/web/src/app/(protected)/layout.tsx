@@ -90,7 +90,10 @@ export default function ProtectedLayout({
 
         {/* Projects List */}
         <div className="flex-1 overflow-y-auto px-4">
-          <h2 className="text-xs font-bold text-text-secondary tracking-widest uppercase mb-4 px-2">Projects</h2>
+          <div className="flex items-center gap-2 mb-3 px-3">
+            <h2 className="text-[11px] font-semibold text-text-secondary/50 tracking-widest uppercase">Projects</h2>
+            <div className="h-px flex-1 bg-border/50"></div>
+          </div>
           <ul className="space-y-1">
             {projects.map(p => {
               const isActive = pathname === `/projects/${p.id}`;
