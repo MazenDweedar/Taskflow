@@ -171,6 +171,7 @@ export default function ProjectDetailPage() {
   }
 
   return (
+    <div>
       {/* Header */}
       <div className="mb-10 mt-2">
         <div className="flex justify-between items-start gap-4">

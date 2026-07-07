@@ -12,6 +12,11 @@ type Project = {
 };
 
 export default function ProjectsPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({ name: '', description: '' });
+  const [formLoading, setFormLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
   const openCreateModal = () => {
     setFormData({ name: '', description: '' });
     setFormError(null);
@@ -28,7 +33,7 @@ export default function ProjectsPage() {
     setFormError(null);
 
     try {
-      const proj = await api.projects.create(formData);
+      const proj = await api.projects.create(formData) as { id: string };
       setIsModalOpen(false);
       // Force reload to update sidebar and go to new project
       window.location.href = `/projects/${proj.id}`;
