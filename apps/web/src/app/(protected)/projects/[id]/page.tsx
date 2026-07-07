@@ -251,7 +251,17 @@ export default function ProjectDetailPage() {
             {tasks.filter(t => t.status === 'TODO').map(task => (
               <div key={task.id} className="bg-surface border border-border rounded-xl p-4 shadow-sm hover:border-text-secondary transition-colors group cursor-pointer" onClick={() => openTaskModal(task)}>
                 <div className="flex justify-between items-start mb-3">
-                  <h4 className="font-semibold text-text-primary text-base leading-snug">{task.title}</h4>
+                  <h4 className="font-semibold text-text-primary text-base leading-snug pr-2">{task.title}</h4>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTaskDelete(task.id);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-[#EF4444] transition-all p-1.5 rounded-lg hover:bg-[#EF4444]/10 -mt-1.5 -mr-1.5"
+                    title="Delete Task"
+                  >
+                    <span className="text-sm leading-none">🗑</span>
+                  </button>
                 </div>
                 {task.description && <p className="text-sm text-text-secondary line-clamp-2 mb-4">{task.description}</p>}
                 <div className="flex items-center justify-between text-xs">
@@ -276,7 +286,17 @@ export default function ProjectDetailPage() {
             {tasks.filter(t => t.status === 'IN_PROGRESS').map(task => (
               <div key={task.id} className="bg-surface border border-border rounded-xl p-4 shadow-sm hover:border-text-secondary transition-colors group cursor-pointer" onClick={() => openTaskModal(task)}>
                 <div className="flex justify-between items-start mb-3">
-                  <h4 className="font-semibold text-text-primary text-base leading-snug">{task.title}</h4>
+                  <h4 className="font-semibold text-text-primary text-base leading-snug pr-2">{task.title}</h4>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTaskDelete(task.id);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-[#EF4444] transition-all p-1.5 rounded-lg hover:bg-[#EF4444]/10 -mt-1.5 -mr-1.5"
+                    title="Delete Task"
+                  >
+                    <span className="text-sm leading-none">🗑</span>
+                  </button>
                 </div>
                 {task.description && <p className="text-sm text-text-secondary line-clamp-2 mb-4">{task.description}</p>}
                 <div className="flex items-center justify-between text-xs">
@@ -301,7 +321,17 @@ export default function ProjectDetailPage() {
             {tasks.filter(t => t.status === 'DONE').map(task => (
               <div key={task.id} className="bg-surface border border-border rounded-xl p-4 shadow-sm hover:border-text-secondary transition-colors group cursor-pointer opacity-60" onClick={() => openTaskModal(task)}>
                 <div className="flex justify-between items-start mb-3">
-                  <h4 className="font-semibold text-text-primary text-base leading-snug line-through">{task.title}</h4>
+                  <h4 className="font-semibold text-text-primary text-base leading-snug line-through pr-2">{task.title}</h4>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTaskDelete(task.id);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-[#EF4444] transition-all p-1.5 rounded-lg hover:bg-[#EF4444]/10 -mt-1.5 -mr-1.5"
+                    title="Delete Task"
+                  >
+                    <span className="text-sm leading-none">🗑</span>
+                  </button>
                 </div>
                 {task.description && <p className="text-sm text-text-secondary line-clamp-2 mb-4 line-through">{task.description}</p>}
                 <div className="flex items-center justify-between text-xs">
