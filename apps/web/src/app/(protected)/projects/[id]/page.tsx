@@ -19,7 +19,6 @@ export default function ProjectDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Filters
-  const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -49,7 +48,6 @@ export default function ProjectDetailPage() {
       const [proj, tsk] = await Promise.all([
         api.projects.get(projectId),
         api.tasks.list(projectId, {
-          status: statusFilter || undefined,
           priority: priorityFilter || undefined,
           search: debouncedSearch || undefined,
         })
@@ -65,7 +63,7 @@ export default function ProjectDetailPage() {
     } finally {
       setLoading(false);
     }
-  }, [projectId, statusFilter, priorityFilter, debouncedSearch]);
+  }, [projectId, priorityFilter, debouncedSearch]);
 
   useEffect(() => {
     loadProjectAndTasks();
@@ -211,33 +209,22 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-surface shadow-sm rounded-xl border border-border p-4 mb-6 flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
+      <div className="mb-6 flex flex-col sm:flex-row gap-4 items-center">
+        <div className="flex-1 w-full relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary text-sm">🔍</span>
           <input
             type="text"
             placeholder="Search tasks..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full border-border bg-surface text-text-primary placeholder-text-secondary rounded-lg shadow-sm focus:ring-accent/50 focus:border-accent sm:text-sm py-2 px-3 border"
+            className="w-full pl-9 pr-3 py-2 bg-surface border border-border text-text-primary placeholder-text-secondary rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent sm:text-sm transition-colors"
           />
         </div>
-        <div>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="border-border bg-surface text-text-primary rounded-lg shadow-sm focus:ring-accent/50 focus:border-accent sm:text-sm py-2 px-3 border"
-          >
-            <option value="">All Statuses</option>
-            <option value="TODO">To Do</option>
-            <option value="IN_PROGRESS">In Progress</option>
-            <option value="DONE">Done</option>
-          </select>
-        </div>
-        <div>
+        <div className="w-full sm:w-auto">
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="border-border bg-surface text-text-primary rounded-lg shadow-sm focus:ring-accent/50 focus:border-accent sm:text-sm py-2 px-3 border"
+            className="w-full sm:w-auto bg-surface border border-border text-text-primary rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent sm:text-sm py-2 px-3 transition-colors appearance-none"
           >
             <option value="">All Priorities</option>
             <option value="LOW">Low</option>
@@ -248,49 +235,83 @@ export default function ProjectDetailPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-8">Loading tasks...</div>
-      ) : tasks.length === 0 ? (
-        <div className="text-center bg-white shadow rounded-lg p-12">
-          <p className="text-gray-500">No tasks found.</p>
-        </div>
+        <div className="text-center py-12 text-text-secondary">Loading tasks...</div>
       ) : (
-        <div className="bg-surface shadow-sm overflow-hidden rounded-xl border border-border">
-          <ul className="divide-y divide-border">
-            {tasks.map((task) => (
-              <li key={task.id}>
-                <div className="px-6 py-6 flex items-center justify-between hover:bg-bg/50 transition-colors">
-                  <div className="flex-1 min-w-0 pr-4">
-                    <p className="text-base font-medium text-text-primary truncate">{task.title}</p>
-                    {task.description && <p className="mt-1 text-sm text-text-secondary truncate">{task.description}</p>}
-                    <div className="mt-3 flex items-center space-x-4 text-xs text-text-secondary">
-                      <span className="flex items-center gap-1.5">
-                        <span className={`w-2 h-2 rounded-full ${task.priority === 'HIGH' ? 'bg-[#B5654A]' : task.priority === 'MEDIUM' ? 'bg-accent' : 'bg-text-secondary'}`}></span>
-                        {task.priority}
-                      </span>
-                      {task.dueDate && <span>Due: {task.dueDate}</span>}
-                    </div>
-                  </div>
-                  <div className="flex-shrink-0 flex items-center space-x-2">
-                    <select
-                      value={task.status}
-                      onChange={(e) => handleStatusChange(task.id, e.target.value)}
-                      className="text-sm border-border bg-surface text-text-primary rounded-lg py-1 pl-2 pr-8 focus:ring-accent/50 focus:border-accent mr-2"
-                    >
-                      <option value="TODO">TODO</option>
-                      <option value="IN_PROGRESS">IN PROGRESS</option>
-                      <option value="DONE">DONE</option>
-                    </select>
-                    <button onClick={() => openTaskModal(task)} className="text-sm font-medium text-text-secondary hover:text-text-primary px-3 py-2 border border-transparent hover:border-border rounded-lg transition-colors">
-                      Edit
-                    </button>
-                    <button onClick={() => handleTaskDelete(task.id)} className="text-sm font-medium text-text-secondary hover:text-[#B5654A] px-3 py-2 border border-transparent hover:border-[#B5654A]/30 hover:bg-[#B5654A]/5 rounded-lg transition-colors">
-                      Delete
-                    </button>
-                  </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+          {/* TO DO COLUMN */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 rounded-full bg-text-secondary"></div>
+              <h3 className="font-bold text-text-primary text-sm uppercase tracking-wider">To Do</h3>
+              <span className="ml-auto text-xs text-text-secondary font-medium bg-surface px-2 py-0.5 rounded-full border border-border">
+                {tasks.filter(t => t.status === 'TODO').length}
+              </span>
+            </div>
+            {tasks.filter(t => t.status === 'TODO').map(task => (
+              <div key={task.id} className="bg-surface border border-border rounded-xl p-4 shadow-sm hover:border-text-secondary transition-colors group cursor-pointer" onClick={() => openTaskModal(task)}>
+                <div className="flex justify-between items-start mb-2">
+                  <h4 className="font-semibold text-text-primary text-sm leading-snug">{task.title}</h4>
                 </div>
-              </li>
+                {task.description && <p className="text-xs text-text-secondary line-clamp-2 mb-3">{task.description}</p>}
+                <div className="flex items-center justify-between text-xs">
+                  <span className={`px-2 py-1 rounded-md font-medium ${task.priority === 'HIGH' ? 'bg-[#EF4444]/10 text-[#EF4444]' : task.priority === 'MEDIUM' ? 'bg-[#F59E0B]/10 text-[#F59E0B]' : 'bg-accent/10 text-accent'}`}>
+                    {task.priority === 'HIGH' ? 'High' : task.priority === 'MEDIUM' ? 'Medium' : 'Low'}
+                  </span>
+                  {task.dueDate && <span className="text-text-secondary">Due {task.dueDate}</span>}
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
+
+          {/* IN PROGRESS COLUMN */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 rounded-full bg-[#F59E0B]"></div>
+              <h3 className="font-bold text-text-primary text-sm uppercase tracking-wider">In Progress</h3>
+              <span className="ml-auto text-xs text-text-secondary font-medium bg-surface px-2 py-0.5 rounded-full border border-border">
+                {tasks.filter(t => t.status === 'IN_PROGRESS').length}
+              </span>
+            </div>
+            {tasks.filter(t => t.status === 'IN_PROGRESS').map(task => (
+              <div key={task.id} className="bg-surface border border-border rounded-xl p-4 shadow-sm hover:border-text-secondary transition-colors group cursor-pointer" onClick={() => openTaskModal(task)}>
+                <div className="flex justify-between items-start mb-2">
+                  <h4 className="font-semibold text-text-primary text-sm leading-snug">{task.title}</h4>
+                </div>
+                {task.description && <p className="text-xs text-text-secondary line-clamp-2 mb-3">{task.description}</p>}
+                <div className="flex items-center justify-between text-xs">
+                  <span className={`px-2 py-1 rounded-md font-medium ${task.priority === 'HIGH' ? 'bg-[#EF4444]/10 text-[#EF4444]' : task.priority === 'MEDIUM' ? 'bg-[#F59E0B]/10 text-[#F59E0B]' : 'bg-accent/10 text-accent'}`}>
+                    {task.priority === 'HIGH' ? 'High' : task.priority === 'MEDIUM' ? 'Medium' : 'Low'}
+                  </span>
+                  {task.dueDate && <span className="text-text-secondary">Due {task.dueDate}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* DONE COLUMN */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 rounded-full bg-accent"></div>
+              <h3 className="font-bold text-text-primary text-sm uppercase tracking-wider">Done</h3>
+              <span className="ml-auto text-xs text-text-secondary font-medium bg-surface px-2 py-0.5 rounded-full border border-border">
+                {tasks.filter(t => t.status === 'DONE').length}
+              </span>
+            </div>
+            {tasks.filter(t => t.status === 'DONE').map(task => (
+              <div key={task.id} className="bg-surface border border-border rounded-xl p-4 shadow-sm hover:border-text-secondary transition-colors group cursor-pointer opacity-60" onClick={() => openTaskModal(task)}>
+                <div className="flex justify-between items-start mb-2">
+                  <h4 className="font-semibold text-text-primary text-sm leading-snug line-through">{task.title}</h4>
+                </div>
+                {task.description && <p className="text-xs text-text-secondary line-clamp-2 mb-3 line-through">{task.description}</p>}
+                <div className="flex items-center justify-between text-xs">
+                  <span className={`px-2 py-1 rounded-md font-medium ${task.priority === 'HIGH' ? 'bg-[#EF4444]/10 text-[#EF4444]' : task.priority === 'MEDIUM' ? 'bg-[#F59E0B]/10 text-[#F59E0B]' : 'bg-accent/10 text-accent'}`}>
+                    {task.priority === 'HIGH' ? 'High' : task.priority === 'MEDIUM' ? 'Medium' : 'Low'}
+                  </span>
+                  {task.dueDate && <span className="text-text-secondary">Due {task.dueDate}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
