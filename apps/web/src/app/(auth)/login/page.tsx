@@ -38,66 +38,68 @@ export default function LoginPage() {
 
   return (
     <div className="bg-surface rounded-xl border border-border shadow-sm p-8">
-      <div className="text-center">
-        <h2 className="mt-2 text-3xl font-serif text-text-primary">
-          Sign in to your account
+      <div>
+        <h2 className="text-xl font-bold text-text-primary">
+          Welcome back
         </h2>
+        <p className="mt-1 text-sm text-text-secondary">
+          Sign in to your workspace
+        </p>
       </div>
-      <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-        <div className="rounded-md shadow-sm -space-y-px">
-          <div>
-            <label htmlFor="email-address" className="sr-only">
-              Email address
-            </label>
-            <input
-              id="email-address"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-border placeholder-text-secondary text-text-primary rounded-t-md focus:outline-none focus:ring-accent/50 focus:border-accent focus:z-10 sm:text-sm"
-              placeholder="Email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div>
-            <label htmlFor="password" className="sr-only">
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-border placeholder-text-secondary text-text-primary rounded-b-md focus:outline-none focus:ring-accent/50 focus:border-accent focus:z-10 sm:text-sm"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+      <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="email-address" className="block text-sm font-medium text-text-secondary mb-1">
+            Email
+          </label>
+          <input
+            id="email-address"
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+            className="appearance-none block w-full px-3 py-2 bg-bg border border-border placeholder-text-secondary text-text-primary rounded-lg focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent sm:text-sm transition-colors"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-text-secondary mb-1">
+            Password
+          </label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            required
+            className="appearance-none block w-full px-3 py-2 bg-bg border border-border placeholder-text-secondary text-text-primary rounded-lg focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent sm:text-sm transition-colors"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
 
         {error && (
-          <div className="text-red-600 text-sm text-center">
+          <div className="text-red-500 text-sm">
             {error}
           </div>
         )}
 
-        <div>
+        <div className="pt-2">
           <button
             type="submit"
             disabled={loading}
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-accent hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent/50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-bg bg-accent hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface focus:ring-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </div>
         
-        <div className="text-center text-sm">
-          <Link href="/register" className="font-medium text-text-secondary hover:text-text-primary transition-colors">
-            Don't have an account? Sign up
+        <div className="text-center text-sm pt-2">
+          <span className="text-text-secondary">Don't have an account? </span>
+          <Link href="/register" className="font-medium text-accent hover:text-accent/80 transition-colors">
+            Register
           </Link>
         </div>
       </form>
