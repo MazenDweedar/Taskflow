@@ -54,8 +54,8 @@ export default function ProjectDetailPage() {
           search: debouncedSearch || undefined,
         })
       ]);
-      setProject(proj);
-      setTasks(tsk);
+      setProject(proj as Project);
+      setTasks(tsk as Task[]);
     } catch (err: any) {
       if (err instanceof ApiException && err.statusCode === 404) {
         setError('Project not found');
