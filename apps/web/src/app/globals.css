@@ -1,31 +1,32 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg: #FAF8F4;
-  --color-surface: #FFFFFF;
-  --color-border: #E8E3DA;
-  --color-text-primary: #2B2926;
-  --color-text-secondary: #8A8378;
-  --color-accent: #C98A4B;
-  --color-accent-soft: #F3E4CE;
+  --color-bg: #0A0E14;
+  --color-surface: #131826;
+  --color-surface-hover: #1A2030;
+  --color-border: #232A3A;
+  --color-text-primary: #F5F6F8;
+  --color-text-secondary: #8A93A6;
+  --color-accent: #2DD4BF;
+  --color-accent-dim: #134E4A;
 }
 
 @theme inline {
   --color-bg: var(--color-bg);
   --color-surface: var(--color-surface);
+  --color-surface-hover: var(--color-surface-hover);
   --color-border: var(--color-border);
   --color-text-primary: var(--color-text-primary);
   --color-text-secondary: var(--color-text-secondary);
   --color-accent: var(--color-accent);
-  --color-accent-soft: var(--color-accent-soft);
+  --color-accent-dim: var(--color-accent-dim);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
 }
 
 body {
-  background: var(--color-bg);
+  background: radial-gradient(circle at top left, #12161f, #0A0E14);
+  background-attachment: fixed;
   color: var(--color-text-primary);
+  min-height: 100vh;
 }
-
-/* Remove default dark mode overwrites for now to keep the warm palette intact as requested */
