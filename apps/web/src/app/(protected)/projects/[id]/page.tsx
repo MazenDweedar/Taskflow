@@ -4,6 +4,19 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api, ApiException } from '@/lib/api';
+import {
+  DndContext,
+  DragOverlay,
+  closestCorners,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragStartEvent,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { KanbanColumn, SortableTaskCard } from './components';
 
 type Project = { id: string; name: string; description: string | null };
 type Task = { id: string; title: string; description: string | null; status: string; priority: string; dueDate: string | null };
@@ -17,6 +30,19 @@ export default function ProjectDetailPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // DND
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // Filters
   const [priorityFilter, setPriorityFilter] = useState('');
@@ -155,6 +181,47 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const task = tasks.find(t => t.id === active.id);
+    if (task) setActiveTask(task);
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    setActiveTask(null);
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    const activeTask = tasks.find(t => t.id === activeId);
+    if (!activeTask) return;
+
+    // Determine target status
+    let targetStatus = activeTask.status;
+    if (['TODO', 'IN_PROGRESS', 'DONE'].includes(overId as string)) {
+      targetStatus = overId as string;
+    } else {
+      // dropped over a task
+      const overTask = tasks.find(t => t.id === overId);
+      if (overTask) targetStatus = overTask.status;
+    }
+
+    if (activeTask.status !== targetStatus) {
+      // Optimistic update
+      const previousTasks = [...tasks];
+      setTasks(tasks.map(t => t.id === activeId ? { ...t, status: targetStatus } : t));
+
+      try {
+        await api.tasks.update(activeId as string, { status: targetStatus });
+      } catch (err) {
+        alert('Failed to update task status');
+        setTasks(previousTasks); // revert
+      }
+    }
+  };
+
   if (loading && !project) {
     return <div className="py-12 text-center">Loading...</div>;
   }
@@ -238,112 +305,42 @@ export default function ProjectDetailPage() {
       {loading ? (
         <div className="text-center py-12 text-text-secondary">Loading tasks...</div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-          {/* TO DO COLUMN */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 rounded-full bg-text-secondary"></div>
-              <h3 className="font-bold text-text-primary text-sm uppercase tracking-wider">To Do</h3>
-              <span className="ml-auto text-xs text-text-secondary font-medium bg-surface px-2 py-0.5 rounded-full border border-border">
-                {tasks.filter(t => t.status === 'TODO').length}
-              </span>
-            </div>
-            {tasks.filter(t => t.status === 'TODO').map(task => (
-              <div key={task.id} className="bg-surface border border-border rounded-xl p-4 shadow-sm hover:border-text-secondary transition-colors group cursor-pointer" onClick={() => openTaskModal(task)}>
-                <div className="flex justify-between items-start mb-3">
-                  <h4 className="font-semibold text-text-primary text-base leading-snug pr-2">{task.title}</h4>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleTaskDelete(task.id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-[#EF4444] transition-all p-1.5 rounded-lg hover:bg-[#EF4444]/10 -mt-1.5 -mr-1.5"
-                    title="Delete Task"
-                  >
-                    <span className="text-sm leading-none">🗑</span>
-                  </button>
-                </div>
-                {task.description && <p className="text-sm text-text-secondary line-clamp-2 mb-4">{task.description}</p>}
-                <div className="flex items-center justify-between text-xs">
-                  <span className={`px-2 py-1 rounded-md font-medium ${task.priority === 'HIGH' ? 'bg-[#EF4444]/10 text-[#EF4444]' : task.priority === 'MEDIUM' ? 'bg-[#F59E0B]/10 text-[#F59E0B]' : 'bg-accent/10 text-accent'}`}>
-                    {task.priority === 'HIGH' ? 'High' : task.priority === 'MEDIUM' ? 'Medium' : 'Low'}
-                  </span>
-                  {task.dueDate && <span className="text-text-secondary">Due {task.dueDate}</span>}
-                </div>
-              </div>
-            ))}
+        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+            <KanbanColumn 
+              id="TODO" 
+              title="To Do" 
+              count={tasks.filter(t => t.status === 'TODO').length} 
+              dotColor="bg-text-secondary" 
+              tasks={tasks.filter(t => t.status === 'TODO')} 
+              onTaskClick={openTaskModal} 
+              onTaskDelete={handleTaskDelete} 
+            />
+            <KanbanColumn 
+              id="IN_PROGRESS" 
+              title="In Progress" 
+              count={tasks.filter(t => t.status === 'IN_PROGRESS').length} 
+              dotColor="bg-[#F59E0B]" 
+              tasks={tasks.filter(t => t.status === 'IN_PROGRESS')} 
+              onTaskClick={openTaskModal} 
+              onTaskDelete={handleTaskDelete} 
+            />
+            <KanbanColumn 
+              id="DONE" 
+              title="Done" 
+              count={tasks.filter(t => t.status === 'DONE').length} 
+              dotColor="bg-accent" 
+              tasks={tasks.filter(t => t.status === 'DONE')} 
+              onTaskClick={openTaskModal} 
+              onTaskDelete={handleTaskDelete} 
+            />
           </div>
-
-          {/* IN PROGRESS COLUMN */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 rounded-full bg-[#F59E0B]"></div>
-              <h3 className="font-bold text-text-primary text-sm uppercase tracking-wider">In Progress</h3>
-              <span className="ml-auto text-xs text-text-secondary font-medium bg-surface px-2 py-0.5 rounded-full border border-border">
-                {tasks.filter(t => t.status === 'IN_PROGRESS').length}
-              </span>
-            </div>
-            {tasks.filter(t => t.status === 'IN_PROGRESS').map(task => (
-              <div key={task.id} className="bg-surface border border-border rounded-xl p-4 shadow-sm hover:border-text-secondary transition-colors group cursor-pointer" onClick={() => openTaskModal(task)}>
-                <div className="flex justify-between items-start mb-3">
-                  <h4 className="font-semibold text-text-primary text-base leading-snug pr-2">{task.title}</h4>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleTaskDelete(task.id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-[#EF4444] transition-all p-1.5 rounded-lg hover:bg-[#EF4444]/10 -mt-1.5 -mr-1.5"
-                    title="Delete Task"
-                  >
-                    <span className="text-sm leading-none">🗑</span>
-                  </button>
-                </div>
-                {task.description && <p className="text-sm text-text-secondary line-clamp-2 mb-4">{task.description}</p>}
-                <div className="flex items-center justify-between text-xs">
-                  <span className={`px-2 py-1 rounded-md font-medium ${task.priority === 'HIGH' ? 'bg-[#EF4444]/10 text-[#EF4444]' : task.priority === 'MEDIUM' ? 'bg-[#F59E0B]/10 text-[#F59E0B]' : 'bg-accent/10 text-accent'}`}>
-                    {task.priority === 'HIGH' ? 'High' : task.priority === 'MEDIUM' ? 'Medium' : 'Low'}
-                  </span>
-                  {task.dueDate && <span className="text-text-secondary">Due {task.dueDate}</span>}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* DONE COLUMN */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 rounded-full bg-accent"></div>
-              <h3 className="font-bold text-text-primary text-sm uppercase tracking-wider">Done</h3>
-              <span className="ml-auto text-xs text-text-secondary font-medium bg-surface px-2 py-0.5 rounded-full border border-border">
-                {tasks.filter(t => t.status === 'DONE').length}
-              </span>
-            </div>
-            {tasks.filter(t => t.status === 'DONE').map(task => (
-              <div key={task.id} className="bg-surface border border-border rounded-xl p-4 shadow-sm hover:border-text-secondary transition-colors group cursor-pointer opacity-60" onClick={() => openTaskModal(task)}>
-                <div className="flex justify-between items-start mb-3">
-                  <h4 className="font-semibold text-text-primary text-base leading-snug line-through pr-2">{task.title}</h4>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleTaskDelete(task.id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-[#EF4444] transition-all p-1.5 rounded-lg hover:bg-[#EF4444]/10 -mt-1.5 -mr-1.5"
-                    title="Delete Task"
-                  >
-                    <span className="text-sm leading-none">🗑</span>
-                  </button>
-                </div>
-                {task.description && <p className="text-sm text-text-secondary line-clamp-2 mb-4 line-through">{task.description}</p>}
-                <div className="flex items-center justify-between text-xs">
-                  <span className={`px-2 py-1 rounded-md font-medium ${task.priority === 'HIGH' ? 'bg-[#EF4444]/10 text-[#EF4444]' : task.priority === 'MEDIUM' ? 'bg-[#F59E0B]/10 text-[#F59E0B]' : 'bg-accent/10 text-accent'}`}>
-                    {task.priority === 'HIGH' ? 'High' : task.priority === 'MEDIUM' ? 'Medium' : 'Low'}
-                  </span>
-                  {task.dueDate && <span className="text-text-secondary">Due {task.dueDate}</span>}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+          <DragOverlay>
+            {activeTask ? (
+              <SortableTaskCard task={activeTask} onClick={() => {}} onDelete={() => {}} />
+            ) : null}
+          </DragOverlay>
+        </DndContext>
       )}
 
       {/* Project Edit Modal */}
