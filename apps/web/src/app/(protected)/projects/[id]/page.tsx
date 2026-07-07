@@ -250,10 +250,10 @@ export default function ProjectDetailPage() {
             </div>
             {tasks.filter(t => t.status === 'TODO').map(task => (
               <div key={task.id} className="bg-surface border border-border rounded-xl p-4 shadow-sm hover:border-text-secondary transition-colors group cursor-pointer" onClick={() => openTaskModal(task)}>
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-semibold text-text-primary text-sm leading-snug">{task.title}</h4>
+                <div className="flex justify-between items-start mb-3">
+                  <h4 className="font-semibold text-text-primary text-base leading-snug">{task.title}</h4>
                 </div>
-                {task.description && <p className="text-xs text-text-secondary line-clamp-2 mb-3">{task.description}</p>}
+                {task.description && <p className="text-sm text-text-secondary line-clamp-2 mb-4">{task.description}</p>}
                 <div className="flex items-center justify-between text-xs">
                   <span className={`px-2 py-1 rounded-md font-medium ${task.priority === 'HIGH' ? 'bg-[#EF4444]/10 text-[#EF4444]' : task.priority === 'MEDIUM' ? 'bg-[#F59E0B]/10 text-[#F59E0B]' : 'bg-accent/10 text-accent'}`}>
                     {task.priority === 'HIGH' ? 'High' : task.priority === 'MEDIUM' ? 'Medium' : 'Low'}
@@ -275,10 +275,10 @@ export default function ProjectDetailPage() {
             </div>
             {tasks.filter(t => t.status === 'IN_PROGRESS').map(task => (
               <div key={task.id} className="bg-surface border border-border rounded-xl p-4 shadow-sm hover:border-text-secondary transition-colors group cursor-pointer" onClick={() => openTaskModal(task)}>
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-semibold text-text-primary text-sm leading-snug">{task.title}</h4>
+                <div className="flex justify-between items-start mb-3">
+                  <h4 className="font-semibold text-text-primary text-base leading-snug">{task.title}</h4>
                 </div>
-                {task.description && <p className="text-xs text-text-secondary line-clamp-2 mb-3">{task.description}</p>}
+                {task.description && <p className="text-sm text-text-secondary line-clamp-2 mb-4">{task.description}</p>}
                 <div className="flex items-center justify-between text-xs">
                   <span className={`px-2 py-1 rounded-md font-medium ${task.priority === 'HIGH' ? 'bg-[#EF4444]/10 text-[#EF4444]' : task.priority === 'MEDIUM' ? 'bg-[#F59E0B]/10 text-[#F59E0B]' : 'bg-accent/10 text-accent'}`}>
                     {task.priority === 'HIGH' ? 'High' : task.priority === 'MEDIUM' ? 'Medium' : 'Low'}
@@ -300,10 +300,10 @@ export default function ProjectDetailPage() {
             </div>
             {tasks.filter(t => t.status === 'DONE').map(task => (
               <div key={task.id} className="bg-surface border border-border rounded-xl p-4 shadow-sm hover:border-text-secondary transition-colors group cursor-pointer opacity-60" onClick={() => openTaskModal(task)}>
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-semibold text-text-primary text-sm leading-snug line-through">{task.title}</h4>
+                <div className="flex justify-between items-start mb-3">
+                  <h4 className="font-semibold text-text-primary text-base leading-snug line-through">{task.title}</h4>
                 </div>
-                {task.description && <p className="text-xs text-text-secondary line-clamp-2 mb-3 line-through">{task.description}</p>}
+                {task.description && <p className="text-sm text-text-secondary line-clamp-2 mb-4 line-through">{task.description}</p>}
                 <div className="flex items-center justify-between text-xs">
                   <span className={`px-2 py-1 rounded-md font-medium ${task.priority === 'HIGH' ? 'bg-[#EF4444]/10 text-[#EF4444]' : task.priority === 'MEDIUM' ? 'bg-[#F59E0B]/10 text-[#F59E0B]' : 'bg-accent/10 text-accent'}`}>
                     {task.priority === 'HIGH' ? 'High' : task.priority === 'MEDIUM' ? 'Medium' : 'Low'}
