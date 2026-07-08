@@ -22,13 +22,15 @@ export class ApiException extends Error {
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options?.headers,
     },
-    credentials: 'include', // Always send cookies
+    credentials: 'include', // Always send cookies as fallback
   });
 
   if (res.status === 204) {
@@ -57,12 +59,19 @@ export const api = {
       });
     },
     login: async (credentials: any) => {
-      return fetchApi('/auth/login', {
+      const data = await fetchApi<any>('/auth/login', {
         method: 'POST',
         body: JSON.stringify(credentials),
       });
+      if (typeof window !== 'undefined' && data.token) {
+        localStorage.setItem('access_token', data.token);
+      }
+      return data;
     },
     logout: async () => {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('access_token');
+      }
       return fetchApi('/auth/logout', {
         method: 'POST',
       });

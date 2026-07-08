@@ -53,7 +53,7 @@ export class AuthController {
       path: '/',
     });
 
-    return user;
+    return { ...user, token };
   }
 
   @Post('logout')

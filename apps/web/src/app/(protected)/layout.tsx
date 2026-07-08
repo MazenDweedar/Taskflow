@@ -41,6 +41,9 @@ export default function ProtectedLayout({
         if (mounted) {
           // Clear the stale cookie so middleware won't redirect us back
           document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('access_token');
+          }
           if (err instanceof ApiException && err.statusCode === 401) {
             window.location.href = '/login';
           } else {
