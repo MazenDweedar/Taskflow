@@ -275,7 +275,7 @@ export default function ProjectDetailPage() {
           <div className="flex-1">
             <div className="flex items-center gap-3 group">
               <h1 className="text-3xl font-bold text-text-primary tracking-tight">{project?.name}</h1>
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 mt-1">
+              <div className="opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 mt-1">
                 <button
                   onClick={() => {
                     setProjectForm({ name: project?.name || '', description: project?.description || '' });

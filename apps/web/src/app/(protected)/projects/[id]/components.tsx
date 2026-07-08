@@ -35,7 +35,7 @@ export function SortableTaskCard({ task, onClick, onDelete }: { task: Task; onCl
     >
       <div className="flex justify-between items-start mb-3">
         <h4 className={`font-semibold text-text-primary text-base leading-snug pr-2 ${task.status === 'DONE' ? 'line-through' : ''}`}>{task.title}</h4>
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity -mt-1.5 -mr-1.5">
+        <div className="flex items-center gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity -mt-1.5 -mr-1.5">
           <button 
             onClick={(e) => {
               e.stopPropagation();
