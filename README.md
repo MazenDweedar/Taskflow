@@ -10,10 +10,6 @@
 
 A full-stack Kanban-style task management application built with **Next.js 16** and **NestJS 11**. Organize your work into projects, create and prioritize tasks, and visually manage your workflow with an intuitive drag-and-drop board — all wrapped in a sleek, dark-themed UI that works beautifully on both desktop and mobile.
 
-<p align="center">
-  <img src="screenshots/new-design/Pasted image (6).png" alt="TaskFlow — Kanban Board" width="800" />
-</p>
-
 ---
 
 ## ✨ Features
@@ -27,20 +23,6 @@ A full-stack Kanban-style task management application built with **Next.js 16** 
 - **Custom UI System** — Themed toast notifications and confirmation modals (no native browser popups)
 - **Dark Theme** — A carefully crafted dark color palette designed for extended use
 
----
-
-## 🖼️ Screenshots
-
-<p align="center">
-  <img src="screenshots/new-design/Pasted image.png" alt="Login" width="380" />
-  &nbsp;&nbsp;
-  <img src="screenshots/new-design/Pasted image (2).png" alt="Register" width="380" />
-</p>
-<p align="center">
-  <img src="screenshots/new-design/Pasted image (5).png" alt="New Task Modal" width="380" />
-  &nbsp;&nbsp;
-  <img src="screenshots/new-design/Pasted image (6).png" alt="Kanban Board" width="380" />
-</p>
 
 ---
 
