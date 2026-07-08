@@ -389,7 +389,7 @@ export default function ProjectDetailPage() {
         <div className="text-center py-12 text-text-secondary">Loading tasks...</div>
       ) : (
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
-          <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-6 items-start overflow-x-auto snap-x snap-mandatory scroll-pl-4 md:scroll-pl-0 pb-4 w-full -mx-4 px-4 md:mx-0 md:px-0 hide-scrollbar after:content-[''] after:w-4 after:shrink-0 md:after:hidden">
+          <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-6 items-start overflow-x-auto snap-x snap-mandatory scroll-pl-6 md:scroll-pl-0 pb-4 w-[calc(100%+3rem)] -ml-6 px-6 md:w-full md:ml-0 md:px-0 hide-scrollbar after:content-[''] after:w-6 after:shrink-0 md:after:hidden">
             <div className="w-[85vw] flex-shrink-0 snap-start md:w-auto md:flex-shrink">
               <KanbanColumn
                 id="TODO"

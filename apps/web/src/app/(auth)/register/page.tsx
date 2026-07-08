@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api, ApiException } from '@/lib/api';
+import { useToast } from '@/components/ui/Toast';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,13 +21,16 @@ export default function RegisterPage() {
 
     try {
       await api.auth.register({ email, password });
+      toast.success('Account created successfully');
       // After registration, redirect to login
       router.push('/login');
     } catch (err) {
       if (err instanceof ApiException) {
         setErrors(err.messages);
+        err.messages.forEach(msg => toast.error(msg));
       } else {
         setErrors(['An unexpected error occurred.']);
+        toast.error('An unexpected error occurred.');
       }
     } finally {
       setLoading(false);

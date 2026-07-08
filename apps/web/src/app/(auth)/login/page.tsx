@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api, ApiException } from '@/lib/api';
+import { useToast } from '@/components/ui/Toast';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,17 +21,22 @@ export default function LoginPage() {
 
     try {
       await api.auth.login({ email, password });
+      toast.success('Signed in successfully');
       // Force a hard navigation so middleware and layout re-run
       window.location.href = '/projects';
     } catch (err) {
       if (err instanceof ApiException) {
         if (err.statusCode === 401) {
           setError('Invalid email or password.');
+          toast.error('Invalid email or password.');
         } else {
-          setError(err.messages.join(', '));
+          const msg = err.messages.join(', ');
+          setError(msg);
+          toast.error(msg);
         }
       } else {
         setError('An unexpected error occurred.');
+        toast.error('An unexpected error occurred.');
       }
     } finally {
       setLoading(false);
