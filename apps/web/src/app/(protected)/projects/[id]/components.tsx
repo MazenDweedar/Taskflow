@@ -30,23 +30,32 @@ export function SortableTaskCard({ task, onClick, onDelete }: { task: Task; onCl
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
-      className={`bg-surface border border-border rounded-xl p-4 shadow-sm hover:border-text-secondary transition-colors group cursor-grab active:cursor-grabbing ${task.status === 'DONE' ? 'opacity-60' : ''}`}
+      className={`bg-surface border border-border rounded-xl p-4 shadow-sm hover:border-text-secondary transition-colors group cursor-pointer ${task.status === 'DONE' ? 'opacity-60' : ''} ${isDragging ? 'z-50 shadow-lg ring-2 ring-accent' : ''}`}
       onClick={onClick}
     >
       <div className="flex justify-between items-start mb-3">
         <h4 className={`font-semibold text-text-primary text-base leading-snug pr-2 ${task.status === 'DONE' ? 'line-through' : ''}`}>{task.title}</h4>
-        <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-[#EF4444] transition-all p-1.5 rounded-lg hover:bg-[#EF4444]/10 -mt-1.5 -mr-1.5"
-          title="Delete Task"
-        >
-          <span className="text-sm leading-none">🗑</span>
-        </button>
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity -mt-1.5 -mr-1.5">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="text-text-secondary hover:text-[#EF4444] transition-all p-1.5 rounded-lg hover:bg-[#EF4444]/10"
+            title="Delete Task"
+          >
+            <span className="text-sm leading-none">🗑</span>
+          </button>
+          <div 
+            {...attributes}
+            {...listeners}
+            onClick={(e) => e.stopPropagation()}
+            className="cursor-grab active:cursor-grabbing text-text-secondary hover:text-text-primary p-1.5 rounded-lg hover:bg-surface-hover touch-none"
+            title="Drag to move"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>
+          </div>
+        </div>
       </div>
       {task.description && <p className={`text-sm text-text-secondary line-clamp-2 mb-4 ${task.status === 'DONE' ? 'line-through' : ''}`}>{task.description}</p>}
       <div className="flex items-center justify-between text-xs">

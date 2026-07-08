@@ -20,6 +20,7 @@ export default function ProtectedLayout({
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{ email: string } | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -77,8 +78,16 @@ export default function ProtectedLayout({
 
   return (
     <div className="min-h-screen flex">
+      {/* Sidebar Overlay for Mobile */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm transition-opacity"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-surface border-r border-border flex flex-col hidden md:flex h-screen sticky top-0">
+      <aside className={`w-64 bg-surface border-r border-border flex flex-col h-screen fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:sticky md:top-0 md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {/* Header / Logo */}
         <div className="p-6">
           <Link href="/projects" className="flex items-center gap-3">
@@ -105,6 +114,7 @@ export default function ProtectedLayout({
                 <li key={p.id} className="group relative">
                   <Link
                     href={`/projects/${p.id}`}
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className={`block px-3 py-2 rounded-xl text-sm font-medium transition-colors pr-8 ${isActive
                         ? 'bg-accent-dim text-accent'
                         : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
@@ -142,6 +152,7 @@ export default function ProtectedLayout({
         <div className="p-4 border-t border-border space-y-2">
           <Link
             href="/projects"
+            onClick={() => setIsMobileMenuOpen(false)}
             className="flex items-center gap-2 px-3 py-2 w-full text-left text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-colors"
           >
             <span className="text-lg leading-none">+</span> Add Project
@@ -156,11 +167,21 @@ export default function ProtectedLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-h-screen relative">
+      <main className="flex-1 flex flex-col min-h-screen relative w-full overflow-hidden md:overflow-visible">
         {/* Mobile Header */}
-        <div className="md:hidden bg-surface border-b border-border p-4 flex justify-between items-center">
-          <Link href="/projects" className="font-bold text-text-primary">TaskFlow</Link>
-          <button onClick={handleLogout} className="text-text-secondary text-sm">Log out</button>
+        <div className="md:hidden bg-surface border-b border-border p-4 flex justify-between items-center sticky top-0 z-30 shadow-sm">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="text-text-secondary hover:text-text-primary transition-colors p-1 -ml-1"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <Link href="/projects" className="font-bold text-text-primary">TaskFlow</Link>
+          </div>
+          <button onClick={handleLogout} className="text-text-secondary text-sm font-medium">Log out</button>
         </div>
 
         <div className="flex-1 p-6 md:p-10 max-w-[1400px] w-full mx-auto">

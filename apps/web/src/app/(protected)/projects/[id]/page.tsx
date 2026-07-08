@@ -9,11 +9,13 @@ import {
   DragOverlay,
   closestCorners,
   KeyboardSensor,
-  PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragStartEvent,
+  DragOverEvent,
   DragEndEvent,
+  PointerSensor,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { KanbanColumn, SortableTaskCard } from './components';
@@ -37,6 +39,12 @@ export default function ProjectDetailPage() {
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 5,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 150,
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -187,38 +195,60 @@ export default function ProjectDetailPage() {
     if (task) setActiveTask(task);
   };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    setActiveTask(null);
+  const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
     if (!over) return;
 
     const activeId = active.id;
     const overId = over.id;
 
-    const activeTask = tasks.find(t => t.id === activeId);
-    if (!activeTask) return;
+    if (activeId === overId) return;
 
-    // Determine target status
-    let targetStatus = activeTask.status;
-    if (['TODO', 'IN_PROGRESS', 'DONE'].includes(overId as string)) {
-      targetStatus = overId as string;
-    } else {
-      // dropped over a task
-      const overTask = tasks.find(t => t.id === overId);
-      if (overTask) targetStatus = overTask.status;
-    }
+    const isActiveTask = active.data.current?.type === 'Task';
+    const isOverTask = over.data.current?.type === 'Task';
+    const isOverColumn = over.data.current?.type === 'Column';
 
-    if (activeTask.status !== targetStatus) {
-      // Optimistic update
-      const previousTasks = [...tasks];
-      setTasks(tasks.map(t => t.id === activeId ? { ...t, status: targetStatus } : t));
+    if (!isActiveTask) return;
 
-      try {
-        await api.tasks.update(activeId as string, { status: targetStatus });
-      } catch (err) {
-        alert('Failed to update task status');
-        setTasks(previousTasks); // revert
+    setTasks(prevTasks => {
+      const activeIndex = prevTasks.findIndex(t => t.id === activeId);
+      const overIndex = prevTasks.findIndex(t => t.id === overId);
+
+      if (isOverTask) {
+        if (prevTasks[activeIndex].status !== prevTasks[overIndex].status) {
+          const newTasks = [...prevTasks];
+          newTasks[activeIndex] = { ...newTasks[activeIndex], status: prevTasks[overIndex].status };
+          return newTasks;
+        }
       }
+
+      if (isOverColumn) {
+        if (prevTasks[activeIndex].status !== overId) {
+          const newTasks = [...prevTasks];
+          newTasks[activeIndex] = { ...newTasks[activeIndex], status: overId as string };
+          return newTasks;
+        }
+      }
+
+      return prevTasks;
+    });
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    setActiveTask(null);
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeId = active.id;
+    // The state was already updated eagerly in onDragOver
+    const currentTask = tasks.find(t => t.id === activeId);
+    if (!currentTask) return;
+
+    try {
+      await api.tasks.update(activeId as string, { status: currentTask.status });
+    } catch (err) {
+      alert('Failed to update task status');
+      loadProjectAndTasks(); // revert on failure
     }
   };
 
@@ -305,39 +335,45 @@ export default function ProjectDetailPage() {
       {loading ? (
         <div className="text-center py-12 text-text-secondary">Loading tasks...</div>
       ) : (
-        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-            <KanbanColumn 
-              id="TODO" 
-              title="To Do" 
-              count={tasks.filter(t => t.status === 'TODO').length} 
-              dotColor="bg-text-secondary" 
-              tasks={tasks.filter(t => t.status === 'TODO')} 
-              onTaskClick={openTaskModal} 
-              onTaskDelete={handleTaskDelete} 
-            />
-            <KanbanColumn 
-              id="IN_PROGRESS" 
-              title="In Progress" 
-              count={tasks.filter(t => t.status === 'IN_PROGRESS').length} 
-              dotColor="bg-[#F59E0B]" 
-              tasks={tasks.filter(t => t.status === 'IN_PROGRESS')} 
-              onTaskClick={openTaskModal} 
-              onTaskDelete={handleTaskDelete} 
-            />
-            <KanbanColumn 
-              id="DONE" 
-              title="Done" 
-              count={tasks.filter(t => t.status === 'DONE').length} 
-              dotColor="bg-accent" 
-              tasks={tasks.filter(t => t.status === 'DONE')} 
-              onTaskClick={openTaskModal} 
-              onTaskDelete={handleTaskDelete} 
-            />
+        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
+          <div className="flex md:grid md:grid-cols-3 gap-6 items-start overflow-x-auto snap-x pb-4 w-full -mx-4 px-4 md:mx-0 md:px-0 hide-scrollbar">
+            <div className="w-[85vw] flex-shrink-0 snap-center md:w-auto md:flex-shrink">
+              <KanbanColumn
+                id="TODO"
+                title="To Do"
+                count={tasks.filter(t => t.status === 'TODO').length}
+                dotColor="bg-text-secondary"
+                tasks={tasks.filter(t => t.status === 'TODO')}
+                onTaskClick={openTaskModal}
+                onTaskDelete={handleTaskDelete}
+              />
+            </div>
+            <div className="w-[85vw] flex-shrink-0 snap-center md:w-auto md:flex-shrink">
+              <KanbanColumn
+                id="IN_PROGRESS"
+                title="In Progress"
+                count={tasks.filter(t => t.status === 'IN_PROGRESS').length}
+                dotColor="bg-[#F59E0B]"
+                tasks={tasks.filter(t => t.status === 'IN_PROGRESS')}
+                onTaskClick={openTaskModal}
+                onTaskDelete={handleTaskDelete}
+              />
+            </div>
+            <div className="w-[85vw] flex-shrink-0 snap-center md:w-auto md:flex-shrink">
+              <KanbanColumn
+                id="DONE"
+                title="Done"
+                count={tasks.filter(t => t.status === 'DONE').length}
+                dotColor="bg-accent"
+                tasks={tasks.filter(t => t.status === 'DONE')}
+                onTaskClick={openTaskModal}
+                onTaskDelete={handleTaskDelete}
+              />
+            </div>
           </div>
           <DragOverlay>
             {activeTask ? (
-              <SortableTaskCard task={activeTask} onClick={() => {}} onDelete={() => {}} />
+              <SortableTaskCard task={activeTask} onClick={() => { }} onDelete={() => { }} />
             ) : null}
           </DragOverlay>
         </DndContext>
