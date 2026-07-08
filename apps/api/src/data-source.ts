@@ -8,7 +8,15 @@ import { DataSource } from 'typeorm';
  * NOTE: This file is only used by the TypeORM CLI, not by the NestJS app at runtime.
  * The NestJS app configures TypeORM via TypeOrmModule.forRootAsync in app.module.ts.
  */
-export default new DataSource({
+const isNeon = !!process.env.DATABASE_URL;
+
+export default new DataSource(isNeon ? {
+  type: 'postgres',
+  url: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+  entities: ['src/**/entities/*.entity.ts'],
+  migrations: ['src/migrations/*.ts'],
+} : {
   type: 'postgres',
   host: process.env.DB_HOST ?? 'localhost',
   port: parseInt(process.env.DB_PORT ?? '5432', 10),
@@ -17,4 +25,5 @@ export default new DataSource({
   database: process.env.DB_NAME ?? 'taskflow',
   entities: ['src/**/entities/*.entity.ts'],
   migrations: ['src/migrations/*.ts'],
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });

@@ -15,17 +15,29 @@ import { AuthModule } from './auth/auth.module.js';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres' as const,
-        host: configService.get<string>('DB_HOST', 'localhost'),
-        port: configService.get<number>('DB_PORT', 5432),
-        username: configService.get<string>('DB_USERNAME', 'postgres'),
-        password: configService.get<string>('DB_PASSWORD', 'changeme'),
-        database: configService.get<string>('DB_NAME', 'taskflow'),
-        autoLoadEntities: true,
-        // Never use synchronize: true — always use migrations
-        synchronize: false,
-      }),
+      useFactory: (configService: ConfigService) => {
+        const url = configService.get<string>('DATABASE_URL');
+        if (url) {
+          return {
+            type: 'postgres' as const,
+            url,
+            autoLoadEntities: true,
+            synchronize: false,
+            ssl: { rejectUnauthorized: false }, // Required for Neon
+          };
+        }
+        return {
+          type: 'postgres' as const,
+          host: configService.get<string>('DB_HOST', 'localhost'),
+          port: configService.get<number>('DB_PORT', 5432),
+          username: configService.get<string>('DB_USERNAME', 'postgres'),
+          password: configService.get<string>('DB_PASSWORD', 'changeme'),
+          database: configService.get<string>('DB_NAME', 'taskflow'),
+          autoLoadEntities: true,
+          // Never use synchronize: true — always use migrations
+          synchronize: false,
+        };
+      },
     }),
     UsersModule,
     ProjectsModule,
