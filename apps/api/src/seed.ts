@@ -9,7 +9,15 @@ const DEMO_EMAIL = 'demo@taskflow.dev';
 const DEMO_PASSWORD = 'demo1234';
 
 async function seed() {
-  const dataSource = new DataSource({
+  const isNeon = !!process.env.DATABASE_URL;
+
+  const dataSource = new DataSource(isNeon ? {
+    type: 'postgres',
+    url: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+    entities: [User, Project, Task],
+    synchronize: false,
+  } : {
     type: 'postgres',
     host: process.env.DB_HOST ?? 'localhost',
     port: parseInt(process.env.DB_PORT ?? '5432', 10),
