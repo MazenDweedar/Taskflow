@@ -1,0 +1,108 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { api, ApiException } from '@/lib/api';
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      await api.auth.login({ email, password });
+      // Force a hard navigation so middleware and layout re-run
+      window.location.href = '/projects';
+    } catch (err) {
+      if (err instanceof ApiException) {
+        if (err.statusCode === 401) {
+          setError('Invalid email or password.');
+        } else {
+          setError(err.messages.join(', '));
+        }
+      } else {
+        setError('An unexpected error occurred.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-surface rounded-xl border border-border shadow-sm p-8">
+      <div>
+        <h2 className="text-xl font-bold text-text-primary">
+          Welcome back
+        </h2>
+        <p className="mt-1 text-sm text-text-secondary">
+          Sign in to your workspace
+        </p>
+      </div>
+      <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="email-address" className="block text-sm font-medium text-text-secondary mb-1">
+            Email
+          </label>
+          <input
+            id="email-address"
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+            className="appearance-none block w-full px-3 py-2 bg-bg border border-border placeholder-text-secondary text-text-primary rounded-lg focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent sm:text-sm transition-colors"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-text-secondary mb-1">
+            Password
+          </label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            required
+            className="appearance-none block w-full px-3 py-2 bg-bg border border-border placeholder-text-secondary text-text-primary rounded-lg focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent sm:text-sm transition-colors"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+
+        {error && (
+          <div className="text-red-500 text-sm">
+            {error}
+          </div>
+        )}
+
+        <div className="pt-2">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-bg bg-accent hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface focus:ring-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {loading ? 'Signing in...' : 'Sign in'}
+          </button>
+        </div>
+        
+        <div className="text-center text-sm pt-2">
+          <span className="text-text-secondary">Don't have an account? </span>
+          <Link href="/register" className="font-medium text-accent hover:text-accent/80 transition-colors">
+            Register
+          </Link>
+        </div>
+      </form>
+    </div>
+  );
+}
