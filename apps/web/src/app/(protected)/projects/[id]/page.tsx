@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { api, ApiException } from '@/lib/api';
+import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/Confirm';
 import {
   DndContext,
   DragOverlay,
@@ -19,6 +20,7 @@ import {
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { KanbanColumn, SortableTaskCard } from './components';
+import Link from 'next/link';
 
 type Project = { id: string; name: string; description: string | null };
 type Task = { id: string; title: string; description: string | null; status: string; priority: string; dueDate: string | null };
@@ -27,6 +29,8 @@ export default function ProjectDetailPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params.id as string;
+  const toast = useToast();
+  const confirm = useConfirm();
 
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -110,22 +114,30 @@ export default function ProjectDetailPage() {
     try {
       await api.projects.update(projectId, projectForm);
       setIsProjectModalOpen(false);
+      toast.success('Project updated');
       loadProjectAndTasks();
     } catch (err: any) {
-      alert(err instanceof ApiException ? err.messages.join(', ') : 'Failed to update project');
+      toast.error(err instanceof ApiException ? err.messages.join(', ') : 'Failed to update project');
     } finally {
       setTaskLoading(false);
     }
   };
 
   const handleProjectDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this project? All tasks will be lost.')) return;
+    const confirmed = await confirm({
+      title: 'Delete Project',
+      message: 'Are you sure you want to delete this project? All tasks will be lost.',
+      confirmText: 'Delete',
+      isDanger: true
+    });
+    if (!confirmed) return;
     try {
       await api.projects.delete(projectId);
+      toast.success('Project deleted');
       // Project is gone, go back to empty state
       window.location.href = '/projects';
     } catch (err: any) {
-      alert(err instanceof ApiException ? err.messages.join(', ') : 'Failed to delete project');
+      toast.error(err instanceof ApiException ? err.messages.join(', ') : 'Failed to delete project');
     }
   };
 
@@ -159,8 +171,10 @@ export default function ProjectDetailPage() {
 
       if (editingTask) {
         await api.tasks.update(editingTask, payload);
+        toast.success('Task updated');
       } else {
         await api.tasks.create(projectId, payload);
+        toast.success('Task created');
       }
       setIsTaskModalOpen(false);
       loadProjectAndTasks();
@@ -172,12 +186,19 @@ export default function ProjectDetailPage() {
   };
 
   const handleTaskDelete = async (id: string) => {
-    if (!window.confirm('Delete this task?')) return;
+    const confirmed = await confirm({
+      title: 'Delete Task',
+      message: 'Are you sure you want to delete this task?',
+      confirmText: 'Delete',
+      isDanger: true
+    });
+    if (!confirmed) return;
     try {
       await api.tasks.delete(id);
+      toast.success('Task deleted');
       loadProjectAndTasks();
     } catch (err: any) {
-      alert(err instanceof ApiException ? err.messages.join(', ') : 'Failed to delete task');
+      toast.error(err instanceof ApiException ? err.messages.join(', ') : 'Failed to delete task');
     }
   };
 
@@ -186,7 +207,7 @@ export default function ProjectDetailPage() {
       await api.tasks.update(id, { status: newStatus });
       loadProjectAndTasks();
     } catch (err: any) {
-      alert('Failed to update status');
+      toast.error('Failed to update status');
     }
   };
 
@@ -248,7 +269,7 @@ export default function ProjectDetailPage() {
     try {
       await api.tasks.update(activeId as string, { status: currentTask.status });
     } catch (err) {
-      alert('Failed to update task status');
+      toast.error('Failed to update task status');
       loadProjectAndTasks(); // revert on failure
     }
   };
@@ -368,8 +389,8 @@ export default function ProjectDetailPage() {
         <div className="text-center py-12 text-text-secondary">Loading tasks...</div>
       ) : (
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
-          <div className="flex md:grid md:grid-cols-3 gap-6 items-start overflow-x-auto snap-x pb-4 w-full -mx-4 px-4 md:mx-0 md:px-0 hide-scrollbar">
-            <div className="w-[85vw] flex-shrink-0 snap-center md:w-auto md:flex-shrink">
+          <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-6 items-start overflow-x-auto snap-x snap-mandatory scroll-pl-4 md:scroll-pl-0 pb-4 w-full -mx-4 px-4 md:mx-0 md:px-0 hide-scrollbar after:content-[''] after:w-4 after:shrink-0 md:after:hidden">
+            <div className="w-[85vw] flex-shrink-0 snap-start md:w-auto md:flex-shrink">
               <KanbanColumn
                 id="TODO"
                 title="To Do"
@@ -380,7 +401,7 @@ export default function ProjectDetailPage() {
                 onTaskDelete={handleTaskDelete}
               />
             </div>
-            <div className="w-[85vw] flex-shrink-0 snap-center md:w-auto md:flex-shrink">
+            <div className="w-[85vw] flex-shrink-0 snap-start md:w-auto md:flex-shrink">
               <KanbanColumn
                 id="IN_PROGRESS"
                 title="In Progress"
@@ -391,7 +412,7 @@ export default function ProjectDetailPage() {
                 onTaskDelete={handleTaskDelete}
               />
             </div>
-            <div className="w-[85vw] flex-shrink-0 snap-center md:w-auto md:flex-shrink">
+            <div className="w-[85vw] flex-shrink-0 snap-start md:w-auto md:flex-shrink">
               <KanbanColumn
                 id="DONE"
                 title="Done"
@@ -542,13 +563,20 @@ export default function ProjectDetailPage() {
                     <button
                       type="button"
                       onClick={async () => {
-                        if (window.confirm('Delete this task?')) {
+                        const confirmed = await confirm({
+                          title: 'Delete Task',
+                          message: 'Are you sure you want to delete this task?',
+                          confirmText: 'Delete',
+                          isDanger: true
+                        });
+                        if (confirmed) {
                           try {
                             await api.tasks.delete(editingTask);
+                            toast.success('Task deleted');
                             setIsTaskModalOpen(false);
                             loadProjectAndTasks();
                           } catch (err: any) {
-                            alert('Failed to delete task');
+                            toast.error('Failed to delete task');
                           }
                         }
                       }}

@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { api, ApiException } from '@/lib/api';
+import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/Confirm';
 
 type Project = {
   id: string;
@@ -21,6 +23,8 @@ export default function ProtectedLayout({
   const [user, setUser] = useState<{ email: string } | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const toast = useToast();
+  const confirm = useConfirm();
 
   useEffect(() => {
     let mounted = true;
@@ -125,15 +129,22 @@ export default function ProtectedLayout({
                   <button
                     onClick={async (e) => {
                       e.preventDefault();
-                      if (window.confirm(`Delete project "${p.name}"? All tasks will be lost.`)) {
+                      const confirmed = await confirm({
+                        title: 'Delete Project',
+                        message: `Delete project "${p.name}"? All tasks will be lost.`,
+                        confirmText: 'Delete',
+                        isDanger: true,
+                      });
+                      if (confirmed) {
                         try {
                           await api.projects.delete(p.id);
                           setProjects(prev => prev.filter(proj => proj.id !== p.id));
+                          toast.success('Project deleted');
                           if (isActive) {
                             router.push('/projects');
                           }
                         } catch (err) {
-                          alert('Failed to delete project');
+                          toast.error('Failed to delete project');
                         }
                       }
                     }}

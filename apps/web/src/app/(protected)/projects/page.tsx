@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { api, ApiException } from '@/lib/api';
+import { useToast } from '@/components/ui/Toast';
 
 type Project = {
   id: string;
@@ -16,6 +17,7 @@ export default function ProjectsPage() {
   const [formData, setFormData] = useState({ name: '', description: '' });
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const toast = useToast();
 
   const openCreateModal = () => {
     setFormData({ name: '', description: '' });
@@ -35,10 +37,13 @@ export default function ProjectsPage() {
     try {
       const proj = await api.projects.create(formData) as { id: string };
       setIsModalOpen(false);
+      toast.success('Project created successfully');
       // Force reload to update sidebar and go to new project
       window.location.href = `/projects/${proj.id}`;
     } catch (err: any) {
-      setFormError(err instanceof ApiException ? err.messages.join(', ') : 'Failed to save project');
+      const msg = err instanceof ApiException ? err.messages.join(', ') : 'Failed to save project';
+      setFormError(msg);
+      toast.error(msg);
       setFormLoading(false);
     }
   };
