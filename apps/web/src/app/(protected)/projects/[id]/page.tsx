@@ -56,6 +56,7 @@ export default function ProjectDetailPage() {
   const [priorityFilter, setPriorityFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [isPriorityOpen, setIsPriorityOpen] = useState(false);
 
   // Task Modal
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -272,10 +273,10 @@ export default function ProjectDetailPage() {
       {/* Header */}
       <div className="mb-10 mt-2">
         <div className="flex justify-between items-start gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 group">
-              <h1 className="text-3xl font-bold text-text-primary tracking-tight">{project?.name}</h1>
-              <div className="opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 mt-1">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start gap-3 group">
+              <h1 className="text-2xl md:text-3xl font-bold text-text-primary tracking-tight break-words">{project?.name}</h1>
+              <div className="opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 shrink-0 mt-1 md:mt-2">
                 <button
                   onClick={() => {
                     setProjectForm({ name: project?.name || '', description: project?.description || '' });
@@ -288,14 +289,14 @@ export default function ProjectDetailPage() {
                 </button>
                 <button
                   onClick={handleProjectDelete}
-                  className="p-1.5 text-text-secondary hover:text-[#EF4444] rounded hover:bg-[#EF4444]/10 transition-colors"
+                  className="p-1.5 text-[#EF4444] md:text-text-secondary md:hover:text-[#EF4444] rounded hover:bg-[#EF4444]/10 transition-colors"
                   title="Delete Project"
                 >
                   <span className="text-sm">🗑</span>
                 </button>
               </div>
             </div>
-            <p className="mt-3 text-base text-text-secondary max-w-3xl leading-relaxed">{project?.description || 'No description provided.'}</p>
+            <p className="mt-3 text-sm md:text-base text-text-secondary max-w-3xl leading-relaxed">{project?.description || 'No description provided.'}</p>
           </div>
           <button
             onClick={() => openTaskModal()}
@@ -307,28 +308,59 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* Filters */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4 items-center">
-        <div className="flex-1 w-full relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary text-sm">🔍</span>
+      <div className="mb-6 flex flex-row gap-3 items-center w-full">
+        <div className="flex-1 relative">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary/60 w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
           <input
             type="text"
             placeholder="Search tasks..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-surface border border-border text-text-primary placeholder-text-secondary rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent sm:text-sm transition-colors"
+            className="w-full pl-9 pr-3 py-1.5 bg-surface border border-border text-text-primary placeholder-text-secondary rounded-lg focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent text-sm transition-colors"
           />
         </div>
-        <div className="w-full sm:w-auto">
-          <select
-            value={priorityFilter}
-            onChange={(e) => setPriorityFilter(e.target.value)}
-            className="w-full sm:w-auto bg-surface border border-border text-text-primary rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent sm:text-sm py-2 px-3 transition-colors appearance-none"
+        <div className="relative shrink-0">
+          <button
+            onClick={() => setIsPriorityOpen(!isPriorityOpen)}
+            className="flex items-center gap-2 bg-surface border border-border text-text-primary rounded-lg py-1.5 px-3 hover:border-text-secondary focus:outline-none focus:ring-1 focus:ring-accent text-sm transition-all"
           >
-            <option value="">All Priorities</option>
-            <option value="LOW">Low</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="HIGH">High</option>
-          </select>
+            <span className="text-text-secondary/70">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+              </svg>
+            </span>
+            <span className="font-medium hidden sm:inline-block">{priorityFilter === '' ? 'All Priorities' : priorityFilter === 'LOW' ? 'Low Priority' : priorityFilter === 'MEDIUM' ? 'Medium Priority' : 'High Priority'}</span>
+            <span className="font-medium sm:hidden">{priorityFilter === '' ? 'All' : priorityFilter === 'LOW' ? 'Low' : priorityFilter === 'MEDIUM' ? 'Med' : 'High'}</span>
+          </button>
+          {isPriorityOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setIsPriorityOpen(false)}></div>
+              <div className="absolute right-0 mt-2 w-40 bg-surface border border-border rounded-xl shadow-lg z-20 overflow-hidden transform opacity-100 scale-100 transition-all duration-200 origin-top-right">
+                <ul className="py-1">
+                  {[
+                    { value: '', label: 'All Priorities' },
+                    { value: 'LOW', label: 'Low' },
+                    { value: 'MEDIUM', label: 'Medium' },
+                    { value: 'HIGH', label: 'High' }
+                  ].map((option) => (
+                    <li key={option.value}>
+                      <button
+                        onClick={() => {
+                          setPriorityFilter(option.value);
+                          setIsPriorityOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-2 text-sm transition-colors ${priorityFilter === option.value ? 'bg-accent/10 text-accent font-medium' : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'}`}
+                      >
+                        {option.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

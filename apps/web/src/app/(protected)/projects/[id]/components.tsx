@@ -34,14 +34,14 @@ export function SortableTaskCard({ task, onClick, onDelete }: { task: Task; onCl
       onClick={onClick}
     >
       <div className="flex justify-between items-start mb-3">
-        <h4 className={`font-semibold text-text-primary text-base leading-snug pr-2 ${task.status === 'DONE' ? 'line-through' : ''}`}>{task.title}</h4>
+        <h4 className={`font-semibold text-text-primary text-sm md:text-base leading-snug pr-2 ${task.status === 'DONE' ? 'line-through' : ''}`}>{task.title}</h4>
         <div className="flex items-center gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity -mt-1.5 -mr-1.5">
           <button 
             onClick={(e) => {
               e.stopPropagation();
               onDelete();
             }}
-            className="text-text-secondary hover:text-[#EF4444] transition-all p-1.5 rounded-lg hover:bg-[#EF4444]/10"
+            className="text-[#EF4444] md:text-text-secondary md:hover:text-[#EF4444] transition-all p-1.5 rounded-lg hover:bg-[#EF4444]/10"
             title="Delete Task"
           >
             <span className="text-sm leading-none">🗑</span>
@@ -57,7 +57,7 @@ export function SortableTaskCard({ task, onClick, onDelete }: { task: Task; onCl
           </div>
         </div>
       </div>
-      {task.description && <p className={`text-sm text-text-secondary line-clamp-2 mb-4 ${task.status === 'DONE' ? 'line-through' : ''}`}>{task.description}</p>}
+      {task.description && <p className={`text-xs md:text-sm text-text-secondary line-clamp-2 mb-4 ${task.status === 'DONE' ? 'line-through' : ''}`}>{task.description}</p>}
       <div className="flex items-center justify-between text-xs">
         <span className={`px-2 py-1 rounded-md font-medium ${task.priority === 'HIGH' ? 'bg-[#EF4444]/10 text-[#EF4444]' : task.priority === 'MEDIUM' ? 'bg-[#F59E0B]/10 text-[#F59E0B]' : 'bg-accent/10 text-accent'}`}>
           {task.priority === 'HIGH' ? 'High' : task.priority === 'MEDIUM' ? 'Medium' : 'Low'}
