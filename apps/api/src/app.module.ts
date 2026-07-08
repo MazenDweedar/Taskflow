@@ -23,7 +23,7 @@ import { AuthModule } from './auth/auth.module.js';
             url,
             autoLoadEntities: true,
             synchronize: false,
-            ssl: { rejectUnauthorized: false }, // Required for Neon
+            ssl: { rejectUnauthorized: false },
           };
         }
         return {
@@ -34,7 +34,6 @@ import { AuthModule } from './auth/auth.module.js';
           password: configService.get<string>('DB_PASSWORD', 'changeme'),
           database: configService.get<string>('DB_NAME', 'taskflow'),
           autoLoadEntities: true,
-          // Never use synchronize: true — always use migrations
           synchronize: false,
         };
       },
@@ -45,4 +44,4 @@ import { AuthModule } from './auth/auth.module.js';
     AuthModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

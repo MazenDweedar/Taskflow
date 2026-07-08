@@ -3,20 +3,18 @@ import type { NextRequest } from 'next/server';
 
 export function proxy(request: NextRequest) {
   const token = request.cookies.get('access_token');
-  const isAuthRoute = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register');
   const isProtectedRoute = request.nextUrl.pathname.startsWith('/projects');
 
+  // Only redirect to login if there's no cookie at all.
+  // Don't redirect auth→projects based on cookie existence alone,
+  // because the token may be expired/invalid (causes infinite loop).
   if (isProtectedRoute && !token) {
     return NextResponse.redirect(new URL('/login', request.url));
-  }
-
-  if (isAuthRoute && token) {
-    return NextResponse.redirect(new URL('/projects', request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/projects/:path*', '/login', '/register'],
+  matcher: ['/projects/:path*'],
 };

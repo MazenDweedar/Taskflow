@@ -23,7 +23,7 @@ export default function ProtectedLayout({
 
   useEffect(() => {
     let mounted = true;
-    
+
     api.auth.me()
       .then(async (data: any) => {
         if (mounted) {
@@ -39,16 +39,17 @@ export default function ProtectedLayout({
       })
       .catch((err) => {
         if (mounted) {
+          // Clear the stale cookie so middleware won't redirect us back
+          document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
           if (err instanceof ApiException && err.statusCode === 401) {
-            router.push('/login');
+            window.location.href = '/login';
           } else {
             console.error('Failed to verify session', err);
-            // Optionally redirect to login on other errors too, or show an error state
-            router.push('/login');
+            window.location.href = '/login';
           }
         }
       });
-      
+
     return () => {
       mounted = false;
     };
@@ -99,13 +100,12 @@ export default function ProtectedLayout({
               const isActive = pathname === `/projects/${p.id}`;
               return (
                 <li key={p.id} className="group relative">
-                  <Link 
+                  <Link
                     href={`/projects/${p.id}`}
-                    className={`block px-3 py-2 rounded-xl text-sm font-medium transition-colors pr-8 ${
-                      isActive 
-                        ? 'bg-accent-dim text-accent' 
+                    className={`block px-3 py-2 rounded-xl text-sm font-medium transition-colors pr-8 ${isActive
+                        ? 'bg-accent-dim text-accent'
                         : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
-                    }`}
+                      }`}
                   >
                     <span className="truncate block">{p.name}</span>
                   </Link>
@@ -119,7 +119,7 @@ export default function ProtectedLayout({
                           if (isActive) {
                             router.push('/projects');
                           }
-                        } catch(err) {
+                        } catch (err) {
                           alert('Failed to delete project');
                         }
                       }
@@ -137,13 +137,13 @@ export default function ProtectedLayout({
 
         {/* Footer Actions */}
         <div className="p-4 border-t border-border space-y-2">
-          <Link 
-            href="/projects" 
+          <Link
+            href="/projects"
             className="flex items-center gap-2 px-3 py-2 w-full text-left text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-colors"
           >
             <span className="text-lg leading-none">+</span> Add Project
           </Link>
-          <button 
+          <button
             onClick={handleLogout}
             className="flex items-center gap-2 px-3 py-2 w-full text-left text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-colors"
           >
@@ -159,7 +159,7 @@ export default function ProtectedLayout({
           <Link href="/projects" className="font-bold text-text-primary">TaskFlow</Link>
           <button onClick={handleLogout} className="text-text-secondary text-sm">Log out</button>
         </div>
-        
+
         <div className="flex-1 p-6 md:p-10 max-w-[1400px] w-full mx-auto">
           {children}
         </div>
