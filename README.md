@@ -12,6 +12,18 @@ A full-stack Kanban-style task management application built with **Next.js 16** 
 
 ---
 
+**live 🔗 :** [https://taskflow-delta-rosy.vercel.app](https://taskflow-delta-rosy.vercel.app/)
+
+---
+
+## 🔑 Demo Credentials
+
+If you ran the seed script, you can log in with the following demo account:
+- **Email:** `demo@taskflow.dev`
+- **Password:** `demo1234`
+
+---
+
 ## ✨ Features
 
 - **Kanban Board** — Drag-and-drop tasks between To Do, In Progress, and Done columns
@@ -125,7 +137,7 @@ Start the development server:
 npm run start:dev
 ```
 
-The API will be available at `http://localhost:3001`. Swagger docs are at `http://localhost:3001/api`.
+The API will be available at `http://localhost:3001`. Swagger docs are at `http://localhost:3001/api/docs`.
 
 ### 3. Set Up the Frontend
 
@@ -174,32 +186,19 @@ All endpoints are prefixed with `/` and protected by JWT authentication (except 
 | `PATCH` | `/tasks/:id` | Update a task (title, description, status, priority) |
 | `DELETE` | `/tasks/:id` | Delete a task |
 
----
-
-## 🧪 Running Tests
-
-```bash
-# Backend unit tests
-cd apps/api
-npm run test
-
-# Backend e2e tests
-npm run test:e2e
-```
+*Visit Swagger at: `http://localhost:3001/api/docs`*
 
 ---
 
-## 🚢 Deployment
+## 🚀 Deployment
 
 TaskFlow is designed to be deployed as two separate services:
 
-| Component | Recommended Platform |
-|-----------|---------------------|
-| Backend API | [Railway](https://railway.app) |
-| Frontend | [Vercel](https://vercel.com) |
-| Database | [Neon](https://neon.tech) |
-
-> **Important:** When deploying, ensure `FRONTEND_URL` on the API matches your Vercel domain, and `NEXT_PUBLIC_API_URL` on the frontend matches your Railway domain. Both must use HTTPS in production for cookie-based auth to work correctly.
+| Component | Platform |
+|-----------|----------|
+| Backend API | Railway |
+| Frontend | Vercel |
+| Database | Neon |
 
 ---
 
