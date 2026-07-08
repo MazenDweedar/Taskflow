@@ -13,8 +13,22 @@ async function bootstrap() {
   app.use(cookieParser(configService.get<string>('COOKIE_SECRET')));
 
   // CORS — allow the Next.js frontend origin with credentials (cookie-based auth)
+  const frontendUrl = configService.get<string>('FRONTEND_URL', 'http://localhost:3000');
   app.enableCors({
-    origin: configService.get<string>('FRONTEND_URL', 'http://localhost:3000'),
+    origin: (origin: any, callback: any) => {
+      const allowedOrigins = frontendUrl.split(',').map((o) => o.trim());
+      // Allow requests with no origin (e.g. server-side, curl)
+      // Allow exact matches or Vercel preview deployments
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        /\.vercel\.app$/.test(origin)
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   });
 
