@@ -80,7 +80,6 @@ export default function ProjectsPage() {
                     type="text"
                     name="name"
                     id="name"
-                    required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="block w-full sm:text-sm bg-bg border-border text-text-primary placeholder-text-secondary rounded-lg py-2.5 px-3 border focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors"

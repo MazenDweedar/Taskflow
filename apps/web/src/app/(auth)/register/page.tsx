@@ -52,7 +52,6 @@ export default function RegisterPage() {
             name="email"
             type="email"
             autoComplete="email"
-            required
             className="appearance-none block w-full px-3 py-2 bg-bg border border-border placeholder-text-secondary text-text-primary rounded-lg focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent sm:text-sm transition-colors"
             placeholder="you@example.com"
             value={email}
@@ -68,8 +67,6 @@ export default function RegisterPage() {
             name="password"
             type="password"
             autoComplete="new-password"
-            required
-            minLength={6}
             className="appearance-none block w-full px-3 py-2 bg-bg border border-border placeholder-text-secondary text-text-primary rounded-lg focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent sm:text-sm transition-colors"
             placeholder="••••••••"
             value={password}
