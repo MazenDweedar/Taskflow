@@ -47,8 +47,8 @@ export class AuthController {
 
     res.cookie('access_token', token, {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      secure: isProduction, // must be true when sameSite is 'none'
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       path: '/',
     });
@@ -61,8 +61,15 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Logout and clear JWT cookie' })
-  async logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('access_token', { path: '/' });
+  async logout(
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+    res.clearCookie('access_token', {
+      path: '/',
+      sameSite: isProduction ? 'none' : 'lax',
+      secure: isProduction,
+    });
   }
 
   @Get('me')
