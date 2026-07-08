@@ -18,7 +18,6 @@ A full-stack Kanban-style task management application built with **Next.js 16** 
 
 ## 🔑 Demo Credentials
 
-If you ran the seed script, you can log in with the following demo account:
 - **Email:** `demo@taskflow.dev`
 - **Password:** `demo1234`
 
