@@ -35,7 +35,6 @@ task-flow/
 ├── apps/
 │   ├── api/          # NestJS backend (REST API)
 │   └── web/          # Next.js frontend (App Router)
-├── screenshots/
 ├── LICENSE
 └── README.md
 ```
@@ -198,7 +197,7 @@ TaskFlow is designed to be deployed as two separate services:
 |-----------|---------------------|
 | Backend API | [Railway](https://railway.app) |
 | Frontend | [Vercel](https://vercel.com) |
-| Database | [Neon](https://neon.tech) or Railway PostgreSQL |
+| Database | [Neon](https://neon.tech) |
 
 > **Important:** When deploying, ensure `FRONTEND_URL` on the API matches your Vercel domain, and `NEXT_PUBLIC_API_URL` on the frontend matches your Railway domain. Both must use HTTPS in production for cookie-based auth to work correctly.
 

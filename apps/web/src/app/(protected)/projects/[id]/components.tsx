@@ -2,7 +2,7 @@ import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-
 import { CSS } from '@dnd-kit/utilities';
 import { useDroppable } from '@dnd-kit/core';
 
-type Task = { id: string; title: string; description: string | null; status: string; priority: string; dueDate: string | null };
+import { Task } from './types';
 
 export function SortableTaskCard({ task, onClick, onDelete }: { task: Task; onClick: () => void; onDelete: () => void }) {
   const {
