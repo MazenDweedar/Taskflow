@@ -33,7 +33,13 @@ export function KanbanBoard({
   } = useKanbanDnd(tasks, setTasks, updateTaskStatus, onFailureRollback);
 
   return (
-    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
+    <DndContext 
+      sensors={sensors} 
+      onDragStart={handleDragStart} 
+      onDragOver={handleDragOver} 
+      onDragEnd={handleDragEnd}
+      autoScroll={{ acceleration: 2 }} // Reduced acceleration to prevent scrolling too fast on mobile
+    >
       <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-6 items-start overflow-x-auto snap-x snap-mandatory scroll-pl-6 md:scroll-pl-0 pb-4 w-[calc(100%+3rem)] -ml-6 px-6 md:w-full md:ml-0 md:px-0 hide-scrollbar after:content-[''] after:w-6 after:shrink-0 md:after:hidden">
         <div className="w-[85vw] flex-shrink-0 snap-start md:w-auto md:flex-shrink">
           <KanbanColumn
