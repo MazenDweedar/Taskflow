@@ -1,10 +1,15 @@
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useDroppable } from '@dnd-kit/core';
+import { useMemo } from 'react';
 
 import { Task } from './types';
 
 export function SortableTaskCard({ task, onClick, onDelete }: { task: Task; onClick: () => void; onDelete: () => void }) {
+  const data = useMemo(() => ({
+    type: 'Task',
+  }), []);
+
   const {
     attributes,
     listeners,
@@ -14,10 +19,7 @@ export function SortableTaskCard({ task, onClick, onDelete }: { task: Task; onCl
     isDragging,
   } = useSortable({
     id: task.id,
-    data: {
-      type: 'Task',
-      task,
-    },
+    data,
   });
 
   const style = {
@@ -69,12 +71,17 @@ export function SortableTaskCard({ task, onClick, onDelete }: { task: Task; onCl
 }
 
 export function KanbanColumn({ id, title, count, dotColor, tasks, onTaskClick, onTaskDelete }: { id: string; title: string; count: number; dotColor: string; tasks: Task[]; onTaskClick: (task: Task) => void; onTaskDelete: (id: string) => void }) {
+  const data = useMemo(() => ({
+    type: 'Column',
+  }), []);
+
   const { setNodeRef, isOver } = useDroppable({
     id,
-    data: {
-      type: 'Column',
-    },
+    data,
   });
+
+  const taskIdsStr = tasks.map(t => t.id).join(',');
+  const itemIds = useMemo(() => tasks.map(t => t.id), [taskIdsStr]);
 
   return (
     <div className="flex flex-col bg-white/[0.02] border border-white/5 shadow-sm rounded-2xl p-4 h-full">
@@ -89,7 +96,7 @@ export function KanbanColumn({ id, title, count, dotColor, tasks, onTaskClick, o
         ref={setNodeRef}
         className={`flex flex-col gap-3 min-h-[200px] rounded-xl transition-colors ${isOver ? 'bg-white/5' : ''}`}
       >
-        <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+        <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
           {tasks.map(task => (
             <SortableTaskCard 
               key={task.id} 

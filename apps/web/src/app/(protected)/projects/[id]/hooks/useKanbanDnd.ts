@@ -9,7 +9,7 @@ import {
   DragEndEvent,
   PointerSensor,
 } from '@dnd-kit/core';
-import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import { Task } from '../types';
 import { useToast } from '@/components/ui/Toast';
 
@@ -68,7 +68,9 @@ export function useKanbanDnd(
         if (prevTasks[activeIndex].status !== prevTasks[overIndex].status) {
           const newTasks = [...prevTasks];
           newTasks[activeIndex] = { ...newTasks[activeIndex], status: prevTasks[overIndex].status };
-          return newTasks;
+          return arrayMove(newTasks, activeIndex, overIndex);
+        } else if (activeIndex !== overIndex) {
+          return arrayMove(prevTasks, activeIndex, overIndex);
         }
       }
 
@@ -76,7 +78,8 @@ export function useKanbanDnd(
         if (prevTasks[activeIndex].status !== overId) {
           const newTasks = [...prevTasks];
           newTasks[activeIndex] = { ...newTasks[activeIndex], status: overId as string };
-          return newTasks;
+          // Move to the end of the global array so it appears at the bottom of the new column
+          return arrayMove(newTasks, activeIndex, newTasks.length - 1);
         }
       }
 

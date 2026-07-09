@@ -2,10 +2,12 @@ import React from 'react';
 import {
   DndContext,
   DragOverlay,
+  closestCorners,
 } from '@dnd-kit/core';
 import { KanbanColumn, SortableTaskCard } from '../components';
 import { Task } from '../types';
 import { useKanbanDnd } from '../hooks/useKanbanDnd';
+import { useScrollContainer } from '../hooks/useScrollContainer';
 
 interface KanbanBoardProps {
   tasks: Task[];
@@ -32,14 +34,21 @@ export function KanbanBoard({
     handleDragEnd,
   } = useKanbanDnd(tasks, setTasks, updateTaskStatus, onFailureRollback);
 
+  const { containerRef, isDragging, isWheeling, events } = useScrollContainer(!!activeTask);
+
   return (
     <DndContext
       sensors={sensors}
+      collisionDetection={closestCorners}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className={`flex md:grid md:grid-cols-3 gap-4 md:gap-6 items-start overflow-x-auto ${!activeTask ? 'snap-x snap-mandatory' : ''} scroll-pl-6 md:scroll-pl-0 pb-4 w-[calc(100%+3rem)] -ml-6 px-6 md:w-full md:ml-0 md:px-0 hide-scrollbar after:content-[''] after:w-6 after:shrink-0 md:after:hidden`}>
+      <div 
+        ref={containerRef}
+        {...events}
+        className={`flex md:grid md:grid-cols-3 gap-4 md:gap-6 items-start overflow-x-auto ${!(activeTask || isWheeling) ? 'snap-x snap-mandatory' : ''} ${isDragging ? 'cursor-grabbing select-none' : ''} scroll-pl-6 md:scroll-pl-0 pb-4 w-[calc(100%+3rem)] -ml-6 px-6 md:w-full md:ml-0 md:px-0 hide-scrollbar after:content-[''] after:w-6 after:shrink-0 md:after:hidden`}
+      >
         <div className="w-[85vw] flex-shrink-0 snap-start md:w-auto md:flex-shrink">
           <KanbanColumn
             id="TODO"
